@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RakitPC - Simulasi</title>
+    <!-- Link to your external CSS file -->
+    <link rel="stylesheet" href="simulasi.css">
+</head>
+<header>
+    <div class="logo">
+        <img src="LogoRakitpccom.png" alt="RakitPC Logo">
+    </div>
+    <nav>
+        <ul>
+            <li><a href="#">Simulasi</a></li>
+            <li><a href="https://www.tokopedia.com/memezgamingshop">Prebuild</a></li>
+        </ul>
+    </nav>
+</header>
+<body>
+
+    <!-- Subheader for compatibility and wattage -->
+    <div class="subheader">
+        <div class="compatibility-status" id="compatibility-status">
+            Compatibility: Unknown
+        </div>
+        <div class="total-wattage" id="total-wattage">
+            Total Wattage: 0W
+        </div>
+    </div>
+
+    <!-- Main build table -->
+    <table class="table-container">
+        <thead>
+            <tr>
+                <th>Component</th>
+                <th>Selection</th>
+                <th>Price</th>
+                <th>Where</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>CPU</td>
+                <td><button>Pick your CPU</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>Motherboard</td>
+                <td><button>Pick your Motherboard</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>RAM</td>
+                <td><button>Pick your RAM</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>CPU Cooler</td>
+                <td><button>Pick your CPU Cooler</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>Storage 1</td>
+                <td><button>Pick your Storage 1</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>Storage 2</td>
+                <td><button>Pick your Storage 2</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>GPU</td>
+                <td><button id="gpuButton">Pick your GPU</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>PSU</td>
+                <td><button>Pick your PSU</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+            <tr>
+                <td>Case</td>
+                <td><button>Pick your Case</button></td>
+                <td>RP 0</td>
+                <td><a href="#">Link</a></td>
+                <td><button>X</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- GPU Selection Modal -->
+    <div id="gpuModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select a GPU</h2>
+    
+            <!-- Search bar inside the modal -->
+            <input type="text" id="gpuSearch" placeholder="Search for GPU..." onkeyup="searchGpu()">
+    
+            <!-- Table to display GPUs -->
+            <div class="modal-body">
+                <table id="gpu-table">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Manufacturer</th>
+                            <th>Model</th>
+                            <th>Wattage</th>
+                            <th>Connector Type</th>
+                            <th>Length</th>
+                            <th>Width</th>
+                            <th>Height</th>
+                            <th>Price</th>
+                            <th>Link</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- GPU data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include JavaScript file -->
+    <script src="simulasi.js"></script>
+</body>
+</html>

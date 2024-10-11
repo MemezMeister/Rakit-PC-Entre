@@ -1,0 +1,202 @@
+/* Reset default browser styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #FFFFFF; /* Set the background to white */
+    color: #000000; /* Black text */
+}
+
+/* Styling the header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #00D8FF; /* Use your neon blue color */
+}
+/* Subheader for compatibility and wattage */
+.subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #ddd; /* Default background color */
+    color: white;
+    font-weight: bold;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+/* Styles for compatibility status */
+#compatibility-status {
+    font-size: 18px;
+}
+
+#total-wattage {
+    font-size: 18px;
+}
+
+/* Green for compatible */
+.compatible {
+    background-color: #00FF00;
+}
+
+/* Yellow for potential issues */
+.potential-issues {
+    background-color: #FFFF00;
+    color: #000;
+}
+
+/* Red for incompatible */
+.incompatible {
+    background-color: #FF0000;
+}
+
+/* Logo section */
+.logo img {
+    width: 150px; /* Adjust the size of the logo */
+}
+
+/* Navigation styles */
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: rgb(255, 255, 255); /* White text for contrast */
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Hover effect for navigation links */
+nav ul li a:hover {
+    color: #007FFF; /* Darker blue for hover effect */
+}
+
+/* Subheader for compatibility and wattage */
+.subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #00FF00; /* Green for compatibility */
+    color: white;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Styles for when compatibility changes */
+.compatibility-status {
+    font-size: 18px;
+}
+
+.total-wattage {
+    font-size: 18px;
+}
+
+/* Table styling */
+.table-container {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #CCCCCC;
+    text-align: left;
+}
+
+th {
+    background-color: #00D8FF;
+    color: white;
+}
+
+button {
+    background-color: #00BFFF;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #007FFF;
+}
+
+a {
+    color: #007FFF;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Modal styles */
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%; /* Modal width */
+    max-height: 80vh; /* Modal height is limited */
+    background-color: #fff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.modal-content {
+    padding: 20px;
+    overflow-y: auto; /* Make modal scrollable */
+}
+
+.modal-body {
+    max-height: 50vh; /* Limit the height of the modal body */
+    overflow-y: scroll; /* Add scroll if content exceeds the modal height */
+}
+
+/* Styling the search bar */
+#gpuSearch {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+/* Modal close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
