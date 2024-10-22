@@ -44,42 +44,42 @@
         <tbody>
             <tr>
                 <td>CPU</td>
-                <td><button>Pick your CPU</button></td>
+                <td><button id="cpuButton">Pick your CPU</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
             </tr>
             <tr>
                 <td>Motherboard</td>
-                <td><button>Pick your Motherboard</button></td>
+                <td><button id="motherboardButton">Pick your Motherboard</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
             </tr>
             <tr>
                 <td>RAM</td>
-                <td><button>Pick your RAM</button></td>
+                <td><button id="ramButton">Pick your RAM</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
             </tr>
             <tr>
                 <td>CPU Cooler</td>
-                <td><button>Pick your CPU Cooler</button></td>
+                <td><button id="cpucoolerButton">Pick your CPU Cooler</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
             </tr>
             <tr>
                 <td>Storage 1</td>
-                <td><button>Pick your Storage 1</button></td>
+                <td><button id="storage1Button">Pick your Storage 1</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
             </tr>
             <tr>
                 <td>Storage 2</td>
-                <td><button>Pick your Storage 2</button></td>
+                <td><button id="storage2Button">Pick your Storage 2</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
@@ -93,20 +93,21 @@
             </tr>
             <tr>
                 <td>PSU</td>
-                <td><button>Pick your PSU</button></td>
+                <td><button id="psuButton">Pick your PSU</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
             </tr>
             <tr>
                 <td>Case</td>
-                <td><button>Pick your Case</button></td>
+                <td><button id="caseButton">Pick your Case</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
             </tr>
         </tbody>
     </table>
+    <!-- CPU Selection Modal -->
     <div id="cpuModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -141,16 +142,13 @@
             </div>
         </div>
     </div>
+
     <!-- GPU Selection Modal -->
     <div id="gpuModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Select a GPU</h2>
-    
-            <!-- Search bar inside the modal -->
             <input type="text" id="gpuSearch" placeholder="Search for GPU..." onkeyup="searchGpu()">
-    
-            <!-- Table to display GPUs -->
             <div class="modal-body">
                 <table id="gpu-table">
                     <thead>
@@ -176,6 +174,222 @@
         </div>
     </div>
 
+    <!-- Motherboard Selection Modal -->
+    <div id="motherboardModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select a Motherboard</h2>
+    
+            <!-- Search bar inside the modal -->
+            <input type="text" id="motherboardSearch" placeholder="Search for Motherboard..." onkeyup="searchMotherboard()">
+    
+            <!-- Table to display Motherboards -->
+            <div class="modal-body">
+                <table id="motherboard-table">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Socket</th>
+                            <th>Chipset</th>
+                            <th>Name</th>
+                            <th>Form Factor</th>
+                            <th>PCIE Gen</th>
+                            <th>BIOS Flashback</th>
+                            <th>RAM Slots</th>
+                            <th>RAM Type</th>
+                            <th>Max RAM Capacity</th>
+                            <th>SATA Ports</th>
+                            <th>NVMe Slots</th>
+                            <th>Wi-Fi</th>
+                            <th>Audio</th>
+                            <th>VRM Phases</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Motherboard data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- RAM Selection Modal -->
+    <div id="ramModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select RAM</h2>
+            <input type="text" id="ramSearch" placeholder="Search for RAM..." onkeyup="searchRam()">
+            <div class="modal-body">
+                <table id="ram-table">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Memory Type</th>
+                            <th>Capacity</th>
+                            <th>Speed</th>
+                            <th>CAS Latency</th>
+                            <th>Height (mm)</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- RAM data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- CPU Cooler Selection Modal -->
+    <div id="cpucoolerModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select a CPU Cooler</h2>
+            <input type="text" id="cpucoolerSearch" placeholder="Search for CPU Cooler..." onkeyup="searchCpuCooler()">
+            <div class="modal-body">
+                <table id="cpucooler-table">
+                    <thead>
+                        <tr>
+                            <th>Manufacturer</th>
+                            <th>Name</th>
+                            <th>Heatpipes</th>
+                            <th>Height</th>
+                            <th>TDP</th>
+                            <th>RAM Clearance</th>
+                            <th>AM5</th>                            
+                            <th>AM4</th>
+                            <th>LGA 1700</th>
+                            <th>LGA 1200</th>                            
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- CPU Cooler data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Storage Selection Modal -->
+    <div id="storage1Modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select Storage 1</h2>
+            <input type="text" id="storage1Search" placeholder="Search for Storage 1..." onkeyup="searchStorage1()">
+            <div class="modal-body">
+                <table id="storage1-table">
+                    <thead>
+                        <tr>
+                            <th>Manufacturer</th>
+                            <th>Name</th>
+                            <th>PCIE Gen</th>
+                            <th>Size</th>
+                            <th>Read Speed</th>
+                            <th>Write Speed</th>
+                            <th>NAND Type</th>
+                            <th>DRAM Cache</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Storage 1 data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Storage 2 Modal -->
+    <div id="storage2Modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select Storage 2</h2>
+            <input type="text" id="storage2Search" placeholder="Search for Storage 2..." onkeyup="searchStorage2()">
+            <div class="modal-body">
+                <table id="storage2-table">
+                    <thead>
+                        <tr>
+                            <th>Manufacturer</th>
+                            <th>Name</th>
+                            <th>PCIE Gen</th>
+                            <th>Size</th>
+                            <th>Read Speed</th>
+                            <th>Write Speed</th>
+                            <th>NAND Type</th>
+                            <th>DRAM Cache</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Storage 2 data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- PSU Selection Modal -->
+    <div id="psuModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select a PSU</h2>
+            <input type="text" id="psuSearch" placeholder="Search for PSU..." onkeyup="searchPsu()">
+            <div class="modal-body">
+                <table id="psu-table">
+                    <thead>
+                        <tr>
+                            <th>Manufacturer</th>
+                            <th>Name</th>
+                            <th>Wattage</th>
+                            <th>Efficiency Rating</th>
+                            <th>Form Factor</th>
+                            <th>Type</th>
+                            <th>Length</th>
+                            <th>Tier</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- PSU data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Selection Modal -->
+    <div id="caseModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select a Case</h2>
+            <input type="text" id="caseSearch" placeholder="Search for Case..." onkeyup="searchCase()">
+            <div class="modal-body">
+                <table id="case-table">
+                    <thead>
+                        <tr>
+                            <th>Manufacturer</th>
+                            <th>Name</th>
+                            <th>Height</th>
+                            <th>Width</th>
+                            <th>Length</th>
+                            <th>Volume</th>
+                            <th>Max PSU Length</th>
+                            <th>Max CPU Height</th>
+                            <th>Max GPU Length</th>
+                            <th>Motherboard Form Factor</th>
+                            <th>Drives (2.5")</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Case data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <!-- Include JavaScript file -->
     <script src="simulasi.js"></script>
 </body>

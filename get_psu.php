@@ -14,39 +14,35 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
 if ($conn->connect_error) {
-    // Return error as JSON if the connection fails
     echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
     exit;
 }
 
-// Query to select all CPUs from cpus table
-$sql = "SELECT * FROM cpus";
+// Query to select all PSUs from psu_list table
+$sql = "SELECT * FROM psu_list";
 $result = $conn->query($sql);
 
-// Create an array to hold the CPU data
-$cpus = array();
+// Create an array to hold the PSU data
+$psus = array();
 
 // Check if query was successful
 if ($result) {
     if ($result->num_rows > 0) {
-        // Fetch and store CPU data in the array
         while($row = $result->fetch_assoc()) {
-            $cpus[] = $row;
+            $psus[] = $row;
         }
     } else {
-        // No CPUs found, return a message
-        echo json_encode(["message" => "No CPUs found"]);
+        echo json_encode(["message" => "No PSUs found"]);
         exit;
     }
 } else {
-    // Return query error as JSON
     echo json_encode(["error" => "Query failed: " . $conn->error]);
     exit;
 }
 
 // Return the data as JSON
-header('Content-Type: application/json');  // Set content type to JSON
-echo json_encode($cpus);
+header('Content-Type: application/json');
+echo json_encode($psus);
 
 // Close the connection
 $conn->close();
