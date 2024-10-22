@@ -42,72 +42,72 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
+            <tr id="cpuRow">
                 <td>CPU</td>
                 <td><button id="cpuButton">Pick your CPU</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="motherboard-row">
                 <td>Motherboard</td>
                 <td><button id="motherboardButton">Pick your Motherboard</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="ramRow">
                 <td>RAM</td>
                 <td><button id="ramButton">Pick your RAM</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="cpucoolerRow">
                 <td>CPU Cooler</td>
                 <td><button id="cpucoolerButton">Pick your CPU Cooler</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="storage1Row">
                 <td>Storage 1</td>
                 <td><button id="storage1Button">Pick your Storage 1</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="storage2Row">
                 <td>Storage 2</td>
                 <td><button id="storage2Button">Pick your Storage 2</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="gpuRow">
                 <td>GPU</td>
                 <td><button id="gpuButton">Pick your GPU</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="psuRow">
                 <td>PSU</td>
                 <td><button id="psuButton">Pick your PSU</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
-            <tr>
+              </tr>
+              <tr id="caseRow">
                 <td>Case</td>
                 <td><button id="caseButton">Pick your Case</button></td>
                 <td>RP 0</td>
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
-            </tr>
+              </tr>
         </tbody>
     </table>
-    <!-- CPU Selection Modal -->
+    <!-- CPU Selection Modal -->    
     <div id="cpuModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -247,7 +247,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Select a CPU Cooler</h2>
-            <input type="text" id="cpucoolerSearch" placeholder="Search for CPU Cooler..." onkeyup="searchCpuCooler()">
+            <input type="text" id="cpucoolerSearch" placeholder="Search for CPU Cooler..." onkeyup="searchcpucooler()">
             <div class="modal-body">
                 <table id="cpucooler-table">
                     <thead>
@@ -291,6 +291,7 @@
                             <th>Write Speed</th>
                             <th>NAND Type</th>
                             <th>DRAM Cache</th>
+                            <th>Controller</th>
                             <th>Select</th>
                         </tr>
                     </thead>
@@ -320,6 +321,7 @@
                             <th>Write Speed</th>
                             <th>NAND Type</th>
                             <th>DRAM Cache</th>
+                            <th>Controller</th>
                             <th>Select</th>
                         </tr>
                     </thead>
@@ -375,8 +377,11 @@
                             <th>Width</th>
                             <th>Length</th>
                             <th>Volume</th>
+                            <th>PSU Form Factors</th>
                             <th>Max PSU Length</th>
+                            <th>Warning</th>
                             <th>Max CPU Height</th>
+                            <th>AIO Support</th>
                             <th>Max GPU Length</th>
                             <th>Motherboard Form Factor</th>
                             <th>Drives (2.5")</th>

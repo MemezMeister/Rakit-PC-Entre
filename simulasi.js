@@ -1,183 +1,44 @@
-// Fetch GPU data from PHP
-function fetchGpus() {
-  fetch('get_gpus.php') // Ensure this PHP file returns JSON data
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log("Received GPU data:", data); // Log the received data for debugging
+// GLOBAL VARIABLES
+let totalWattage = 0; // Total wattage for system build
+let currentModal = null; // Track the currently open modal
 
-      const gpuTableBody = document.querySelector('#gpu-table tbody');
-      if (!gpuTableBody) {
-        console.error('Error: GPU table body not found!');
-        return;
-      }
-
-      gpuTableBody.innerHTML = ''; // Clear the table
-
-      // Populate the GPU table with all available GPUs
-      data.forEach(gpu => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${gpu.brand}</td>
-          <td>${gpu.manufacturer}</td>
-          <td>${gpu.model} ${gpu.gpu_name ? gpu.gpu_name : ''}</td>
-          <td>${gpu.wattage}W</td>
-          <td>${gpu.connector_type}</td>
-          <td>${gpu.length_mm || 'N/A'} mm</td>
-          <td>${gpu.width_mm || 'N/A'} mm</td>
-          <td>${gpu.height_mm || 'N/A'} mm</td>
-          <td>${gpu.price ? `RP ${gpu.price}` : 'N/A'}</td>
-          <td>${gpu.link ? `<a href="${gpu.link}" target="_blank">Link</a>` : 'N/A'}</td>
-          <td><button onclick="addToBuild('${gpu.brand}', '${gpu.manufacturer}', '${gpu.model}', '${gpu.price}', '${gpu.link}', ${gpu.wattage})">Add</button></td>
-        `;
-        gpuTableBody.appendChild(row);
-      });
-    })
-    .catch(error => console.error('Error fetching GPU data:', error));
-}
-function getComponentRow(type) {
-  const components = ['cpu', 'motherboard', 'ram', 'cpucooler', 'storage1', 'storage2', 'gpu', 'psu', 'case'];
-  return components.indexOf(type) + 2; // The +2 is because the index starts at 0 and the table starts at the 2nd row
-}
-// Function to add GPU to the PC build list
-function addToBuild(brand, manufacturer, model, price, link, wattage) {
-  const gpuRow = document.querySelector('tr:nth-child(7)'); // You know GPU is in the 7th row
-
-  if (!gpuRow) {
-    console.error('Error: GPU row not found');
-    return;
-  }
-
-  // Update the row with the GPU information
-  gpuRow.innerHTML = `
-    <td>GPU</td>
-    <td>${brand} ${manufacturer} ${model}</td>
-    <td>${price ? `RP ${price}` : 'N/A'}</td>
-    <td>${link ? `<a href="${link}" target="_blank">Link</a>` : 'N/A'}</td>
-    <td><button onclick="removeGpu(${wattage})">X</button></td>
-  `;
-
-  totalWattage += wattage;
-  updateTotalWattageAndCompatibility();
-
-  // Close the modal
-  document.getElementById('gpuModal').style.display = 'none';
-}
-
-// Function to remove GPU from the build
-function removeGpu(wattage) {
-  const gpuRow = document.querySelector('tr:nth-child(7)'); // Ensure you're targeting the correct GPU row
-
-  if (!gpuRow) {
-    console.error('Error: GPU row not found');
-    return;
-  }
-
-  // Reset the row content back to the "Pick your GPU" state
-  gpuRow.innerHTML = `
-    <td>GPU</td>
-    <td><button id="gpuButton">Pick your GPU</button></td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
-    <td><button>X</button></td>
-  `;
-
-  // Decrease the total wattage
-  totalWattage -= wattage;
-  updateTotalWattageAndCompatibility();
-
-  // Re-assign the event listener for the "Pick your GPU" button
-  const gpuButton = document.getElementById('gpuButton');
-  if (gpuButton) {
-    gpuButton.onclick = openGpuModal;
-  } else {
-    console.error('Error: GPU button not found');
+// Function to open the CPU modal
+function openCpuModal() {
+  currentModal = document.getElementById('cpuModal');
+  if (currentModal) {
+    currentModal.style.display = 'block'; // Show CPU modal
   }
 }
 
-// Function to update total wattage and compatibility status
-function updateTotalWattageAndCompatibility() {
-  const totalWattageEl = document.getElementById('total-wattage');
-  const compatibilityStatusEl = document.getElementById('compatibility-status');
-
-  if (!totalWattageEl || !compatibilityStatusEl) {
-    console.error('Error: Wattage or compatibility elements not found!');
-    return;
-  }
-
-  totalWattageEl.textContent = `Total Wattage: ${totalWattage}W`;
-
-  if (totalWattage < 500) {
-    compatibilityStatusEl.textContent = 'Compatibility: Compatible';
-    compatibilityStatusEl.className = 'compatible';
-  } else if (totalWattage >= 500 && totalWattage < 800) {
-    compatibilityStatusEl.textContent = 'Compatibility: Potential Issues';
-    compatibilityStatusEl.className = 'potential-issues';
-  } else {
-    compatibilityStatusEl.textContent = 'Compatibility: Incompatible';
-    compatibilityStatusEl.className = 'incompatible';
+// Function to close modals
+function closeModal() {
+  if (currentModal) {
+    currentModal.style.display = 'none'; // Hide current modal
+    currentModal = null; // Reset the modal tracker
   }
 }
 
-// Function to open the modal
-function openGpuModal() {
-  const modal = document.getElementById('gpuModal');
-  if (!modal) {
-    console.error('Error: Modal element not found');
-    return;
-  }
-  modal.style.display = 'block'; // Show modal
-}
-
-// Function to close the modal
-document.querySelectorAll('.close').forEach(btn => {
-  btn.onclick = function() {
-    const modal = document.getElementById('gpuModal');
-    if (modal) {
-      modal.style.display = 'none'; // Hide modal
-    }
-  };
-});
-
-// Close modal if user clicks outside of it
+// Add event listener to close the modal when clicking outside of it
 window.onclick = function(event) {
-  const modal = document.getElementById('gpuModal');
-  if (event.target === modal) {
-    modal.style.display = 'none';
+  if (currentModal && event.target === currentModal) {
+    closeModal(); // Close the modal if clicked outside
   }
 };
 
-// Search function to filter GPU table based on user input
-function searchGpu() {
-  const input = document.getElementById('gpuSearch').value.toLowerCase();
-  const gpuTableRows = document.querySelectorAll('#gpu-table tbody tr');
-
-  gpuTableRows.forEach(row => {
-    const gpuData = row.textContent.toLowerCase();
-    row.style.display = gpuData.includes(input) ? '' : 'none';
-  });
-}
-
-// Initialize total wattage and compatibility elements
-let totalWattage = 0; // Initialize total wattage
-
-// Initialize event listener on page load
-document.addEventListener('DOMContentLoaded', function() {
-  const gpuButton = document.getElementById('gpuButton');
-  if (gpuButton) {
-    gpuButton.onclick = openGpuModal;
+// Event listener for CPU button to open the CPU modal
+document.addEventListener('DOMContentLoaded', function () {
+  const cpuButton = document.getElementById('cpuButton');
+  if (cpuButton) {
+    cpuButton.onclick = openCpuModal; // Attach event to open modal
   }
 
-  fetchGpus(); // Fetch GPU data on page load
+  // Fetch CPU data after page load
+  fetchCpus();
 });
 
-// Fetch CPU data from PHP
+// Function to fetch CPU data from PHP and populate the modal
 function fetchCpus() {
-  fetch('get_cpus.php')
+  fetch('get_cpus.php') // Make sure this PHP file returns the correct JSON
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
@@ -186,8 +47,9 @@ function fetchCpus() {
     })
     .then(data => {
       const cpuTableBody = document.querySelector('#cpu-table tbody');
-      cpuTableBody.innerHTML = ''; // Clear the table
+      cpuTableBody.innerHTML = ''; // Clear previous table data
 
+      // Iterate through the CPU data and populate the modal table
       data.forEach(cpu => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -206,7 +68,7 @@ function fetchCpus() {
           <td>${cpu.memory_type}</td>
           <td>${cpu.max_memory_speed} MHz</td>
           <td>${cpu.cooler_included}</td>
-          <td><button onclick="addToBuild('cpu', '${cpu.brand}', '${cpu.line} ${cpu.model}', ${cpu.wattage})">Add</button></td>
+          <td><button onclick="addToBuild('${cpu.brand}', '${cpu.model}', ${cpu.wattage})">Add</button></td>
         `;
         cpuTableBody.appendChild(row);
       });
@@ -214,65 +76,40 @@ function fetchCpus() {
     .catch(error => console.error('Error fetching CPU data:', error));
 }
 
-// Function to open the CPU modal
-function openCpuModal() {
-  document.getElementById('cpuModal').style.display = 'block'; // Show CPU modal
-}
-
-// Function to close the modal
-document.querySelectorAll('.close').forEach(closeBtn => {
-  closeBtn.onclick = function () {
-    const modal = this.closest('.modal');
-    modal.style.display = 'none'; // Hide modal
-  };
-});
-
-// Add event listeners for CPU and GPU buttons to open their respective modals
-
-function searchCpu() {
-  const input = document.getElementById('cpuSearch').value.toLowerCase();
-  const cpuTableRows = document.querySelectorAll('#cpu-table tbody tr');
-
-  cpuTableRows.forEach(row => {
-      const rowText = row.textContent.toLowerCase();
-      row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide rows based on search input
-  });
-}
-// Function to add CPU to the PC build list
-function addToBuild(type, brand, model, wattage) {
-  const cpuRow = document.querySelector('tr:nth-child(2)'); // Targeting the 2nd row for CPU
+// Function to add CPU to the PC build
+function addToBuild(brand, model, wattage) {
+  const cpuRow = document.getElementById('cpuRow'); // Target the CPU row directly
 
   if (!cpuRow) {
     console.error('Error: CPU row not found');
     return;
   }
 
-  // Update the row with the CPU information
+  // Update the row with the selected CPU data
   cpuRow.innerHTML = `
     <td>CPU</td>
     <td>${brand} ${model}</td>
     <td>RP 0</td>
     <td><a href="#">Link</a></td>
-    <td><button onclick="removeComponent('${type}', ${wattage})">X</button></td>
+    <td><button onclick="removeCpu(${wattage})">X</button></td>
   `;
 
-  totalWattage += wattage; // Update total wattage with CPU wattage
+  // Update total wattage and close the modal
+  totalWattage += wattage;
   updateTotalWattageAndCompatibility();
-
-  // Close the CPU modal
-  document.getElementById('cpuModal').style.display = 'none';
+  closeModal(); // Close the modal
 }
 
-// Function to remove the CPU from the build list
-function removeComponent(type, wattage) {
-  const cpuRow = document.querySelector('tr:nth-child(2)'); // Targeting the 2nd row for CPU
+// Function to remove CPU from the build
+function removeCpu(wattage) {
+  const cpuRow = document.getElementById('cpuRow'); // Target the CPU row directly
 
   if (!cpuRow) {
     console.error('Error: CPU row not found');
     return;
   }
 
-  // Reset the row content back to the "Pick your CPU" state
+  // Reset the row to allow picking a new CPU
   cpuRow.innerHTML = `
     <td>CPU</td>
     <td><button id="cpuButton">Pick your CPU</button></td>
@@ -281,11 +118,11 @@ function removeComponent(type, wattage) {
     <td><button>X</button></td>
   `;
 
-  // Decrease the total wattage
+  // Subtract wattage and update compatibility
   totalWattage -= wattage;
   updateTotalWattageAndCompatibility();
 
-  // Re-assign the event listener for the "Pick your CPU" button
+  // Re-attach the CPU button's event listener
   document.getElementById('cpuButton').onclick = openCpuModal;
 }
 
@@ -312,10 +149,178 @@ function updateTotalWattageAndCompatibility() {
     compatibilityStatusEl.className = 'incompatible';
   }
 }
+function searchCpu() {
+  const input = document.getElementById('cpuSearch').value.toLowerCase(); // Get the search input and convert it to lowercase
+  const cpuTableRows = document.querySelectorAll('#cpu-table tbody tr'); // Get all rows from the CPU table
+
+  cpuTableRows.forEach(row => {
+    const rowText = row.textContent.toLowerCase(); // Get the text content of each row
+    row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide the row based on whether it matches the input
+  });
+}
+
+// Function to open the GPU modal
+function openGpuModal() {
+  currentModal = document.getElementById('gpuModal');
+  if (currentModal) {
+    currentModal.style.display = 'block'; // Show GPU modal
+  }
+}
+
+// Function to fetch GPU data from PHP and populate the modal
+function fetchGpus() {
+  fetch('get_gpus.php') // Make sure this PHP file returns the correct JSON
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const gpuTableBody = document.querySelector('#gpu-table tbody');
+      gpuTableBody.innerHTML = ''; // Clear previous table data
+
+      // Iterate through the GPU data and populate the modal table
+      data.forEach(gpu => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${gpu.brand}</td>
+          <td>${gpu.manufacturer}</td>
+          <td>${gpu.model} ${gpu.gpu_name ? gpu.gpu_name : ''}</td>
+          <td>${gpu.wattage}W</td>
+          <td>${gpu.connector_type}</td>
+          <td>${gpu.length || 'N/A'} mm</td>
+          <td>${gpu.width || 'N/A'} mm</td>
+          <td>${gpu.height || 'N/A'} mm</td>
+          <td>${gpu.price ? `RP ${gpu.price}` : 'N/A'}</td>
+          <td>${gpu.link ? `<a href="${gpu.link}" target="_blank">Link</a>` : 'N/A'}</td>
+          <td><button onclick="addGpuToBuild('${gpu.brand}', '${gpu.model}', ${gpu.wattage})">Add</button></td>
+        `;
+        gpuTableBody.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error fetching GPU data:', error));
+}
+
+// Function to add GPU to the PC build
+function addGpuToBuild(brand, model, wattage) {
+  const gpuRow = document.getElementById('gpuRow'); // Target the GPU row directly
+
+  if (!gpuRow) {
+    console.error('Error: GPU row not found');
+    return;
+  }
+
+  // Update the row with the selected GPU data
+  gpuRow.innerHTML = `
+    <td>GPU</td>
+    <td>${brand} ${model}</td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removeGpu(${wattage})">X</button></td>
+  `;
+
+  // Update total wattage and close the modal
+  totalWattage += wattage;
+  updateTotalWattageAndCompatibility();
+  closeModal(); // Close the modal
+}
+
+// Function to remove GPU from the build
+function removeGpu(wattage) {
+  const gpuRow = document.getElementById('gpuRow'); // Target the GPU row directly
+
+  if (!gpuRow) {
+    console.error('Error: GPU row not found');
+    return;
+  }
+
+  // Reset the row to allow picking a new GPU
+  gpuRow.innerHTML = `
+    <td>GPU</td>
+    <td><button id="gpuButton">Pick your GPU</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
+
+  // Subtract wattage and update compatibility
+  totalWattage -= wattage;
+  updateTotalWattageAndCompatibility();
+
+  // Re-attach the GPU button's event listener
+  document.getElementById('gpuButton').onclick = openGpuModal;
+}
+
+// Add event listener to close the modal when clicking outside of it
+window.onclick = function(event) {
+  if (currentModal && event.target === currentModal) {
+    closeModal(); // Close the modal if clicked outside
+  }
+};
+
+// Function to update total wattage and compatibility status (same as before)
+// Make sure to reuse this for all components
+function updateTotalWattageAndCompatibility() {
+  const totalWattageEl = document.getElementById('total-wattage');
+  const compatibilityStatusEl = document.getElementById('compatibility-status');
+
+  if (!totalWattageEl || !compatibilityStatusEl) {
+    console.error('Error: Wattage or compatibility elements not found!');
+    return;
+  }
+
+  totalWattageEl.textContent = `Total Wattage: ${totalWattage}W`;
+
+  if (totalWattage < 500) {
+    compatibilityStatusEl.textContent = 'Compatibility: Compatible';
+    compatibilityStatusEl.className = 'compatible';
+  } else if (totalWattage >= 500 && totalWattage < 800) {
+    compatibilityStatusEl.textContent = 'Compatibility: Potential Issues';
+    compatibilityStatusEl.className = 'potential-issues';
+  } else {
+    compatibilityStatusEl.textContent = 'Compatibility: Incompatible';
+    compatibilityStatusEl.className = 'incompatible';
+  }
+}
+
+// Initialize event listener on page load
+document.addEventListener('DOMContentLoaded', function () {
+  const gpuButton = document.getElementById('gpuButton');
+  if (gpuButton) {
+    gpuButton.onclick = openGpuModal; // Attach the modal open function
+  }
+
+  // Fetch GPU data after page load
+  fetchGpus();
+});
+function searchGpu() {
+  const input = document.getElementById('gpuSearch').value.toLowerCase(); // Get the search input and convert it to lowercase
+  const gpuTableRows = document.querySelectorAll('#gpu-table tbody tr'); // Get all rows from the GPU table
+
+  gpuTableRows.forEach(row => {
+    const rowText = row.textContent.toLowerCase(); // Get the text content of each row
+    row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide the row based on whether it matches the input
+  });
+}
+// Helper function to get NVMe slots
+function getNvmeSlots(motherboard) {
+  if (motherboard.nvme4) {
+    return 4;
+  } else if (motherboard.nvme3) {
+    return 3;
+  } else if (motherboard.nvme2) {
+    return 2;
+  } else if (motherboard.nvme1) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
 // Fetch Motherboard data from PHP
 function fetchMotherboards() {
-  fetch('get_motherboards.php')
+  fetch('get_motherboards.php') // Ensure this PHP file returns JSON data
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
@@ -333,92 +338,119 @@ function fetchMotherboards() {
 
       motherboardTableBody.innerHTML = ''; // Clear the table
 
+      // Populate the Motherboard table with all available motherboards
       data.forEach(motherboard => {
-        // Logic to determine the maximum number of NVMe slots available
-        let nvmeSlots = 0;
-        if (motherboard.nvme4) {
-          nvmeSlots = 4;
-        } else if (motherboard.nvme3) {
-          nvmeSlots = 3;
-        } else if (motherboard.nvme2) {
-          nvmeSlots = 2;
-        } else if (motherboard.nvme1) {
-          nvmeSlots = 1;
-        }
-
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${motherboard.brand}</td>
-          <td>${motherboard.socket}</td>
-          <td>${motherboard.chipset}</td>
-          <td>${motherboard.name}</td>
-          <td>${motherboard.form_factor}</td>
-          <td>${motherboard.pcie_gen}</td>
-          <td>${motherboard.bios_flashback ? 'Yes' : 'No'}</td>
-          <td>${motherboard.ram_slots}</td>
-          <td>${motherboard.ram_type}</td>
-          <td>${motherboard.max_ram_capacity}</td>
-          <td>${motherboard.sata_ports}</td>
-          <td>${nvmeSlots}</td>  <!-- Display maximum NVMe slots -->
-          <td>${motherboard.wifi ? 'Yes' : 'No'}</td>
-          <td>${motherboard.audio}</td>
-          <td>${motherboard.vcore_vrm}</td>
-          <td><button onclick="addToBuild('motherboard', '${motherboard.brand}', '${motherboard.name}', ${motherboard.vcore_vrm})">Add</button></td>
-        `;
+        <td>${motherboard.brand}</td>
+        <td>${motherboard.socket}</td>
+        <td>${motherboard.chipset}</td>
+        <td>${motherboard.name}</td>
+        <td>${motherboard.form_factor}</td>
+        <td>${motherboard.pcie_gen}</td>
+        <td>${motherboard.bios_flashback ? 'Yes' : 'No'}</td>
+        <td>${motherboard.ram_slots}</td>
+        <td>${motherboard.ram_type}</td>
+        <td>${motherboard.max_ram_capacity}</td>
+        <td>${motherboard.sata_ports}</td>
+        <td>${getNvmeSlots(motherboard)}</td> <!-- Dynamically calculated NVMe slots -->
+        <td>${motherboard.wifi ? 'Yes' : 'No'}</td>
+        <td>${motherboard.audio}</td>
+        <td>${motherboard.vcore_vrm}</td>
+        <td><button onclick="addMotherboardToBuild('${motherboard.brand}', '${motherboard.name}', '${motherboard.pcie_gen}', '${motherboard.ram_type}', '${motherboard.max_ram_capacity}')">Add</button></td>
+      `;
         motherboardTableBody.appendChild(row);
       });
     })
     .catch(error => console.error('Error fetching Motherboard data:', error));
 }
 
-// Function to add Motherboard to the PC build list
-function addToBuild(type, brand, model, wattage) {
-  let componentRow = document.querySelector(`tr:nth-child(${getComponentRow(type)})`); // Get the specific row based on component type
-  componentRow.innerHTML = `
-      <td>${type.toUpperCase()}</td>
-      <td>${brand} ${model}</td>
-      <td>RP 0</td>
-      <td><a href="#">Link</a></td>
-      <td><button onclick="removeComponent('${type}', ${wattage})">X</button></td>
+// Function to add the selected motherboard to the build
+function addMotherboardToBuild(brand, name, pcie_gen, ram_type, max_ram_capacity) {
+  const motherboardRow = document.getElementById('motherboard-row'); // Ensure you have an element with id "motherboard-row" in your HTML
+  if (!motherboardRow) {
+    console.error('Error: Motherboard row not found!');
+    return;
+  }
+
+  motherboardRow.innerHTML = `
+    <td>Motherboard</td>
+    <td>${brand} ${name}</td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removeMotherboard()">X</button></td>
   `;
 
-  totalWattage += wattage;
-  updateTotalWattageAndCompatibility();
-  document.getElementById(`${type}Modal`).style.display = 'none'; // Close modal after adding
+  document.getElementById('motherboardModal').style.display = 'none'; // Close modal after adding
 }
 
-// Search function to filter Motherboard table based on user input
-function searchMotherboard() {
-  const input = document.getElementById('motherboardSearch').value.toLowerCase();
-  const motherboardTableRows = document.querySelectorAll('#motherboard-table tbody tr');
+// Function to remove Motherboard from the build
+function removeMotherboard() {
+  const motherboardRow = document.getElementById('motherboard-row'); // Target the correct motherboard row
+  motherboardRow.innerHTML = `
+    <td>Motherboard</td>
+    <td><button id="motherboardButton">Pick your Motherboard</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
 
-  motherboardTableRows.forEach(row => {
-      const motherboardData = row.textContent.toLowerCase();
-      row.style.display = motherboardData.includes(input) ? '' : 'none';
-  });
+  // Re-assign the event listener for the "Pick your Motherboard" button
+  document.getElementById('motherboardButton').onclick = openMotherboardModal;
 }
 
 // Function to open the Motherboard modal
 function openMotherboardModal() {
-  document.getElementById('motherboardModal').style.display = 'block'; // Show modal
+  const modal = document.getElementById('motherboardModal');
+  if (!modal) {
+    console.error('Error: Modal element not found');
+    return;
+  }
+  modal.style.display = 'block'; // Show modal
 }
 
-// Close modal if user clicks outside of it
+// Function to close the modal when user clicks outside
 window.onclick = function(event) {
   const modal = document.getElementById('motherboardModal');
   if (event.target === modal) {
-      modal.style.display = 'none';
+    modal.style.display = 'none';
   }
 };
-// Fetch CPU Cooler data from PHP
-// Fetch CPU Cooler data from PHP
+
+// Function to close the modal
+document.querySelectorAll('.close').forEach(closeBtn => {
+  closeBtn.onclick = function () {
+    const modal = this.closest('.modal');
+    modal.style.display = 'none'; // Hide modal
+  };
+});
+
+// Initialize event listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const motherboardButton = document.getElementById('motherboardButton');
+  if (motherboardButton) {
+    motherboardButton.onclick = openMotherboardModal;
+  }
+
+  fetchMotherboards(); // Fetch motherboard data on page load
+});
+
+// Search function for Motherboard
+function searchMotherboard() {
+  const input = document.getElementById('motherboardSearch').value.toLowerCase(); // Get the search input and convert it to lowercase
+  const motherboardTableRows = document.querySelectorAll('#motherboard-table tbody tr'); // Get all rows from the Motherboard table
+
+  motherboardTableRows.forEach(row => {
+    const rowText = row.textContent.toLowerCase(); // Get the text content of each row
+    row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide the row based on whether it matches the input
+  });
+}
+// Function to fetch CPU coolers from the database and populate the modal
 function fetchCpuCoolers() {
   fetch('get_cpucoolers.php') // Assuming this PHP file exists to return CPU Cooler data
     .then(response => response.json())
     .then(data => {
-      console.log("Received CPU Cooler data:", data); // Log the received data for debugging
-
-      const cpuCoolerTableBody = document.querySelector('#cpucooler-table tbody'); // Correct ID
+      const cpuCoolerTableBody = document.querySelector('#cpucooler-table tbody');
       if (!cpuCoolerTableBody) {
         console.error('Error: CPU Cooler table body not found!');
         return;
@@ -439,47 +471,154 @@ function fetchCpuCoolers() {
           <td>${cooler.am4 == 1 ? 'Yes' : 'No'}</td>
           <td>${cooler.LGA_1700 == 1 ? 'Yes' : 'No'}</td>
           <td>${cooler.LGA_1200 == 1 ? 'Yes' : 'No'}</td>
-          <td><button onclick="addToBuild('cpucooler', '${cooler.manufacturer}', '${cooler.name}', ${cooler.tdp})">Add</button></td>
+          <td><button onclick="addCpuCoolerToBuild('${cooler.manufacturer}', '${cooler.name}', '${cooler.heatpipes}')">Add</button></td>
         `;
         cpuCoolerTableBody.appendChild(row);
       });
     })
-    .catch(error => console.error('Error fetching CPU Cooler data:', error));
+    .catch(error => console.error('Error fetching CPU cooler data:', error));
 }
 
-// Search function to filter CPU Cooler table based on user input
+// Function to add a CPU cooler to the PC build
+function addCpuCoolerToBuild(manufacturer, name, heatpipes) {
+  const cpuCoolerRow = document.getElementById('cpucoolerRow');
+
+  if (!cpuCoolerRow) {
+    console.error('Error: CPU cooler row not found!');
+    return;
+  }
+
+  // Update the row with the CPU cooler information
+  cpuCoolerRow.innerHTML = `
+    <td>CPU Cooler</td>
+    <td>${manufacturer} ${name}</td>
+    <td>N/A</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removeCpuCooler('${heatpipes}')">X</button></td>
+  `;
+
+  // Determine the wattage to add based on whether it's an AIO or a heatsink with heatpipes
+  let wattageToAdd;
+  if (heatpipes.toLowerCase() === "aio") {
+    wattageToAdd = 20; // AIO cooler adds 20W
+  } else if (parseInt(heatpipes)) {
+    wattageToAdd = 10; // Air cooler with heatpipes adds 10W
+  } else {
+    wattageToAdd = 0; // If heatpipes aren't an integer or AIO, no wattage adjustment
+  }
+
+  // Update total wattage and compatibility
+  totalWattage += wattageToAdd;
+  updateTotalWattageAndCompatibility();
+
+  // Close the modal
+  document.getElementById('cpucoolerModal').style.display = 'none';
+}
+
+// Function to remove a CPU cooler from the PC build
+function removeCpuCooler(heatpipes) {
+  const cpuCoolerRow = document.getElementById('cpucoolerRow');
+
+  if (!cpuCoolerRow) {
+    console.error('Error: CPU cooler row not found!');
+    return;
+  }
+
+  // Reset the row content back to the "Pick your CPU cooler" state
+  cpuCoolerRow.innerHTML = `
+    <td>CPU Cooler</td>
+    <td><button id="cpucoolerButton">Pick your CPU Cooler</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
+
+  // Determine the wattage to remove based on whether it's an AIO or a heatsink with heatpipes
+  let wattageToRemove;
+  if (heatpipes.toLowerCase() === "aio") {
+    wattageToRemove = 20; // AIO cooler removes 20W
+  } else if (parseInt(heatpipes)) {
+    wattageToRemove = 10; // Air cooler with heatpipes removes 10W
+  } else {
+    wattageToRemove = 0; // If heatpipes aren't an integer or AIO, no wattage adjustment
+  }
+
+  // Update total wattage and compatibility
+  totalWattage -= wattageToRemove;
+  updateTotalWattageAndCompatibility();
+
+  // Re-assign the event listener for the "Pick your CPU cooler" button
+  const cpuCoolerButton = document.getElementById('cpucoolerButton');
+  if (cpuCoolerButton) {
+    cpuCoolerButton.onclick = openCpuCoolerModal;
+  } else {
+    console.error('Error: CPU cooler button not found');
+  }
+}
+
+// Function to update total wattage and compatibility status
+function updateTotalWattageAndCompatibility() {
+  const totalWattageEl = document.getElementById('total-wattage');
+  const compatibilityStatusEl = document.getElementById('compatibility-status');
+
+  if (!totalWattageEl || !compatibilityStatusEl) {
+    console.error('Error: Wattage or compatibility elements not found!');
+    return;
+  }
+
+  totalWattageEl.textContent = `Total Wattage: ${totalWattage}W`;
+
+  if (totalWattage < 500) {
+    compatibilityStatusEl.textContent = 'Compatibility: Compatible';
+    compatibilityStatusEl.className = 'compatible';
+  } else if (totalWattage >= 500 && totalWattage < 800) {
+    compatibilityStatusEl.textContent = 'Compatibility: Potential Issues';
+    compatibilityStatusEl.className = 'potential-issues';
+  } else {
+    compatibilityStatusEl.textContent = 'Compatibility: Incompatible';
+    compatibilityStatusEl.className = 'incompatible';
+  }
+}
+
+// Function to open the CPU cooler modal
+function openCpuCoolerModal() {
+  document.getElementById('cpucoolerModal').style.display = 'block'; // Show CPU cooler modal
+}
+
+// Function to close the modal
+document.querySelectorAll('.close').forEach(closeBtn => {
+  closeBtn.onclick = function () {
+    const modal = this.closest('.modal');
+    modal.style.display = 'none'; // Hide modal
+  };
+});
+
+// Search function to filter CPU cooler table based on user input (case-insensitive)
 function searchCpuCooler() {
-  const input = document.getElementById('cpucoolerSearch').value.toLowerCase();
+  const input = document.getElementById('cpucoolerSearch').value.toLowerCase(); // Convert search input to lowercase
   const cpuCoolerTableRows = document.querySelectorAll('#cpucooler-table tbody tr');
 
   cpuCoolerTableRows.forEach(row => {
-      const cpuCoolerData = row.textContent.toLowerCase();
-      row.style.display = cpuCoolerData.includes(input) ? '' : 'none';
+    const rowText = row.textContent.toLowerCase(); // Convert row text to lowercase for case-insensitive comparison
+    row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide rows based on search input
   });
 }
 
-
-
-// Function to open CPU Cooler modal
-function openCpuCoolerModal() {
-  document.getElementById('cpucoolerModal').style.display = 'block'; // Show modal
-}
-
-// Function to close modal if user clicks outside of it
-window.onclick = function(event) {
-  const modal = document.getElementById('cpucoolerModal');
-  if (event.target === modal) {
-      modal.style.display = 'none';
+// Initialize event listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const cpucoolerButton = document.getElementById('cpucoolerButton');
+  if (cpucoolerButton) {
+    cpucoolerButton.onclick = openCpuCoolerModal;
   }
-};
-// Fetch RAM data from PHP
+
+  fetchCpuCoolers(); // Fetch CPU cooler data on page load
+});
+// Function to fetch RAMs from the database and populate the modal
 function fetchRams() {
   fetch('get_rams.php') // Assuming this PHP file exists to return RAM data
     .then(response => response.json())
     .then(data => {
-      console.log("Received RAM data:", data); // Log the received data for debugging
-
-      const ramTableBody = document.querySelector('#ram-table tbody'); // Correct ID
+      const ramTableBody = document.querySelector('#ram-table tbody');
       if (!ramTableBody) {
         console.error('Error: RAM table body not found!');
         return;
@@ -494,10 +633,10 @@ function fetchRams() {
           <td>${ram.model}</td>
           <td>${ram.memory_type}</td>
           <td>${ram.capacity}</td>
-          <td>${ram.speed} MHz</td>
+          <td>${ram.speed}</td>
           <td>${ram.cas_latency}</td>
           <td>${ram.height_mm} mm</td>
-          <td><button onclick="addToBuild('ram', '${ram.brand}', '${ram.model}', ${ram.speed})">Add</button></td>
+          <td><button onclick="addRamToBuild('${ram.brand}', '${ram.model} (${ram.capacity}) (${ram.speed})', '${ram.memory_type}', '${ram.capacity}')">Add</button></td>
         `;
         ramTableBody.appendChild(row);
       });
@@ -505,128 +644,689 @@ function fetchRams() {
     .catch(error => console.error('Error fetching RAM data:', error));
 }
 
-// Function to open RAM modal
+// Function to calculate RAM wattage based on memory type and capacity
+function calculateRamWattage(memoryType, capacity) {
+  // Convert capacity from "2x8GB" or "16GB" format to just the total number of GB
+  let totalCapacity = 0;
+  const match = capacity.match(/(\d+)x(\d+)/); // Matches "2x8GB" or similar
+  if (match) {
+    totalCapacity = parseInt(match[1]) * parseInt(match[2]); // Calculate total capacity
+  } else {
+    totalCapacity = parseInt(capacity); // If no "x", just parse the capacity directly
+  }
+
+  // Apply wattage logic based on DDR type and capacity
+  let wattage = 0;
+  if (memoryType.toLowerCase() === "ddr4") {
+    if (totalCapacity <= 16) {
+      wattage = 3; // DDR4 <= 16GB uses 3W
+    } else if (totalCapacity <= 32) {
+      wattage = 4; // DDR4 32GB uses 4W
+    } else {
+      wattage = 5; // DDR4 > 32GB uses 5W
+    }
+  } else if (memoryType.toLowerCase() === "ddr5") {
+    if (totalCapacity <= 16) {
+      wattage = 4; // DDR5 <= 16GB uses 4W
+    } else if (totalCapacity <= 32) {
+      wattage = 5; // DDR5 32GB uses 5W
+    } else {
+      wattage = 6; // DDR5 > 32GB uses 6W
+    }
+  }
+
+  return wattage;
+}
+
+// Function to add RAM to the PC build
+function addRamToBuild(brand, model, memoryType, capacity) {
+  const ramRow = document.getElementById('ramRow');
+  if (!ramRow) {
+    console.error('Error: RAM row not found!');
+    return;
+  }
+
+  // Calculate wattage based on memory type and capacity
+  const wattageToAdd = calculateRamWattage(memoryType, capacity);
+
+  // Update the row with the RAM information, including capacity and speed in the model name
+  ramRow.innerHTML = `
+    <td>RAM</td>
+    <td>${brand} ${model}</td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removeRam('${memoryType}', '${capacity}', ${wattageToAdd})">X</button></td>
+  `;
+
+  totalWattage += wattageToAdd; // Add wattage to total wattage
+  updateTotalWattageAndCompatibility();
+
+  document.getElementById('ramModal').style.display = 'none'; // Close modal after adding
+}
+
+// Function to remove RAM from the PC build
+function removeRam(memoryType, capacity, wattageToRemove) {
+  const ramRow = document.getElementById('ramRow');
+
+  if (!ramRow) {
+    console.error('Error: RAM row not found!');
+    return;
+  }
+
+  // Reset the row content back to the "Pick your RAM" state
+  ramRow.innerHTML = `
+    <td>RAM</td>
+    <td><button id="ramButton">Pick your RAM</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
+
+  totalWattage -= wattageToRemove; // Subtract the wattage
+  updateTotalWattageAndCompatibility();
+
+  // Re-assign the event listener for the "Pick your RAM" button
+  const ramButton = document.getElementById('ramButton');
+  if (ramButton) {
+    ramButton.onclick = openRamModal;
+  } else {
+    console.error('Error: RAM button not found');
+  }
+}
+
+// Function to open the RAM modal
 function openRamModal() {
   document.getElementById('ramModal').style.display = 'block'; // Show RAM modal
 }
 
-// Function to close RAM modal if user clicks outside of it
-window.onclick = function(event) {
-  const ramModal = document.getElementById('ramModal');
-  if (event.target === ramModal) {
-      ramModal.style.display = 'none';
+// Function to close the modal
+document.querySelectorAll('.close').forEach(closeBtn => {
+  closeBtn.onclick = function () {
+    const modal = this.closest('.modal');
+    modal.style.display = 'none'; // Hide modal
+  };
+});
+
+// Search function to filter RAM table based on user input (case-insensitive)
+function searchRam() {
+  const input = document.getElementById('ramSearch').value.toLowerCase(); // Convert search input to lowercase
+  const ramTableRows = document.querySelectorAll('#ram-table tbody tr');
+
+  ramTableRows.forEach(row => {
+    const rowText = row.textContent.toLowerCase(); // Convert row text to lowercase for case-insensitive comparison
+    row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide rows based on search input
+  });
+}
+
+// Initialize event listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const ramButton = document.getElementById('ramButton');
+  if (ramButton) {
+    ramButton.onclick = openRamModal;
   }
-};
+
+  fetchRams(); // Fetch RAM data on page load
+});
+// Function to calculate storage power consumption
+// Function to calculate storage power consumption
+function calculateStorageWattage(pcie_gen, size) {
+  let wattage = 0;
+
+  // Determine wattage based on PCIe generation
+  switch (pcie_gen) {
+    case 'PCIe 3.0':
+      if (size.includes('512GB') || size.includes('1TB')) {
+        wattage = 3;
+      } else if (size.includes('2TB') || size.includes('4TB')) {
+        wattage = 5;
+      } else if (size.includes('8TB')) {
+        wattage = 7;
+      }
+      break;
+
+    case 'PCIe 4.0':
+      if (size.includes('512GB') || size.includes('1TB')) {
+        wattage = 5;
+      } else if (size.includes('2TB') || size.includes('4TB')) {
+        wattage = 7;
+      } else if (size.includes('8TB')) {
+        wattage = 9;
+      }
+      break;
+
+    case 'PCIe 5.0':
+      if (size.includes('512GB') || size.includes('1TB')) {
+        wattage = 7;
+      } else if (size.includes('2TB') || size.includes('4TB')) {
+        wattage = 9;
+      } else if (size.includes('8TB')) {
+        wattage = 12;
+      }
+      break;
+
+    default:
+      // For 2.5" SATA SSDs (assuming other cases)
+      if (size.includes('512GB') || size.includes('1TB')) {
+        wattage = 2;
+      } else if (size.includes('2TB') || size.includes('4TB')) {
+        wattage = 3;
+      } else if (size.includes('8TB')) {
+        wattage = 4;
+      }
+      break;
+  }
+
+  return wattage;
+}
+function openStorageModal(storageType) {
+  const modal = document.getElementById(`${storageType}Modal`);
+  if (!modal) {
+    console.error(`Error: ${storageType}Modal not found!`);
+    return;
+  }
+  modal.style.display = 'block'; // Show the respective storage modal
+}
 // Fetch Storage 1 data
 function fetchStorage1() {
-  fetch('get_storages.php') // Assuming this PHP file exists to return Storage 1 data
-  .then(response => response.json())
-  .then(data => {
-      console.log("Received Storage 1 data:", data); // Log the received data for debugging
-
-      const storage1TableBody = document.querySelector('#storage1-table tbody'); // Ensure correct ID
+  fetch('get_storages.php')
+    .then(response => response.json())
+    .then(data => {
+      const storage1TableBody = document.querySelector('#storage1-table tbody');
       if (!storage1TableBody) {
-          console.error('Error: Storage 1 table body not found!');
-          return;
+        console.error('Error: Storage 1 table body not found!');
+        return;
       }
 
       storage1TableBody.innerHTML = ''; // Clear the table
 
       data.forEach(storage => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-              <td>${storage.manufacturer}</td>
-              <td>${storage.name}</td>
-              <td>${storage.PCIE_gen}</td>
-              <td>${storage.size}</td>
-              <td>${storage.Read_speed} MB/s</td>
-              <td>${storage.Write_speed} MB/s</td>
-              <td>${storage.nand_type}</td>
-              <td>${storage.dram_cache ? 'Yes' : 'No'}</td>
-              <td>${storage.Controller}</td>
-              <td><button onclick="addToBuild('storage1', '${storage.manufacturer}', '${storage.name}', ${storage.Read_speed})">Add</button></td>
-          `;
-          storage1TableBody.appendChild(row);
+        // Set NAND type and Controller to "Unknown" if they are null or empty
+        const nandType = storage.nand_type ? storage.nand_type : 'Unknown';
+        const controller = storage.Controller ? storage.Controller : 'Unknown';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${storage.manufacturer}</td>
+          <td>${storage.name}</td>
+          <td>${storage.PCIE_gen}</td>
+          <td>${storage.size}</td>
+          <td>${storage.Read_speed} MB/s</td>
+          <td>${storage.Write_speed} MB/s</td>
+          <td>${nandType}</td>
+          <td>${storage.dram_cache ? 'Yes' : 'No'}</td>
+          <td>${controller}</td>
+          <td><button onclick="addStorageToBuild('storage1', '${storage.manufacturer}', '${storage.name}', '${storage.PCIE_gen}', '${storage.size}')">Add</button></td>
+        `;
+        storage1TableBody.appendChild(row);
       });
-  })
-  .catch(error => console.error('Error fetching Storage 1 data:', error));
+    })
+    .catch(error => console.error('Error fetching Storage 1 data:', error));
 }
 
 // Fetch Storage 2 data
 function fetchStorage2() {
-  fetch('get_storages.php') // Assuming this PHP file exists to return Storage 2 data
-  .then(response => response.json())
-  .then(data => {
-      console.log("Received Storage 2 data:", data); // Log the received data for debugging
-
-      const storage2TableBody = document.querySelector('#storage2-table tbody'); // Ensure correct ID
+  fetch('get_storages.php')
+    .then(response => response.json())
+    .then(data => {
+      const storage2TableBody = document.querySelector('#storage2-table tbody');
       if (!storage2TableBody) {
-          console.error('Error: Storage 2 table body not found!');
-          return;
+        console.error('Error: Storage 2 table body not found!');
+        return;
       }
 
       storage2TableBody.innerHTML = ''; // Clear the table
 
       data.forEach(storage => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-              <td>${storage.manufacturer}</td>
-              <td>${storage.name}</td>
-              <td>${storage.PCIE_gen}</td>
-              <td>${storage.size}</td>
-              <td>${storage.Read_speed} MB/s</td>
-              <td>${storage.Write_speed} MB/s</td>
-              <td>${storage.nand_type}</td>
-              <td>${storage.dram_cache ? 'Yes' : 'No'}</td>
-              <td>${storage.Controller}</td>
-              <td><button onclick="addToBuild('storage2', '${storage.manufacturer}', '${storage.name}', ${storage.Read_speed})">Add</button></td>
-          `;
-          storage2TableBody.appendChild(row);
+        // Set NAND type and Controller to "Unknown" if they are null or empty
+        const nandType = storage.nand_type ? storage.nand_type : 'Unknown';
+        const controller = storage.Controller ? storage.Controller : 'Unknown';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${storage.manufacturer}</td>
+          <td>${storage.name}</td>
+          <td>${storage.PCIE_gen}</td>
+          <td>${storage.size}</td>
+          <td>${storage.Read_speed} MB/s</td>
+          <td>${storage.Write_speed} MB/s</td>
+          <td>${nandType}</td>
+          <td>${storage.dram_cache ? 'Yes' : 'No'}</td>
+          <td>${controller}</td>
+          <td><button onclick="addStorageToBuild('storage2', '${storage.manufacturer}', '${storage.name}', '${storage.PCIE_gen}', '${storage.size}')">Add</button></td>
+        `;
+        storage2TableBody.appendChild(row);
       });
-  })
-  .catch(error => console.error('Error fetching Storage 2 data:', error));
+    })
+    .catch(error => console.error('Error fetching Storage 2 data:', error));
+}
+// Function to add storage to the PC build
+function addStorageToBuild(storageType, manufacturer, name, pcieGen, size) {
+  const storageRow = document.getElementById(`${storageType}Row`);
+
+  if (!storageRow) {
+    console.error(`Error: ${storageType} row not found!`);
+    return;
+  }
+
+  // Calculate the wattage based on the storage type and size
+  const wattageToAdd = getStorageWattage(pcieGen, size);
+
+  // Update the row with the storage information
+  storageRow.innerHTML = `
+    <td>${storageType === 'storage1' ? 'Storage 1' : 'Storage 2'}</td>
+    <td>${manufacturer} ${name} (${pcieGen}) (${size})</td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removeStorage('${storageType}', ${wattageToAdd})">X</button></td>
+  `;
+
+  // Update the total wattage and compatibility
+  totalWattage += wattageToAdd;
+  updateTotalWattageAndCompatibility();
+
+  // Close the modal after adding
+  document.getElementById(`${storageType}Modal`).style.display = 'none';
 }
 
-// Event listeners for storage buttons
-document.getElementById('storage1Button').onclick = () => openStorageModal(1);
-document.getElementById('storage2Button').onclick = () => openStorageModal(2);
+// Function to remove storage from the PC build
+function removeStorage(storageType, wattageToRemove) {
+  const storageRow = document.getElementById(`${storageType}Row`);
 
-// Open the correct modal based on storage number
-function openStorageModal(storageNum) {
-  document.getElementById(`storage${storageNum}Modal`).style.display = 'block'; // Show the correct modal
+  if (!storageRow) {
+    console.error(`Error: ${storageType} row not found!`);
+    return;
+  }
+
+  // Reset the row content back to the "Pick your Storage" state
+  storageRow.innerHTML = `
+    <td>${storageType === 'storage1' ? 'Storage 1' : 'Storage 2'}</td>
+    <td><button id="${storageType}Button">Pick your ${storageType === 'storage1' ? 'Storage 1' : 'Storage 2'}</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
+
+  // Decrease the total wattage and update compatibility
+  totalWattage -= wattageToRemove;
+  updateTotalWattageAndCompatibility();
+
+  // Re-assign the event listener for the "Pick your Storage" button
+  const storageButton = document.getElementById(`${storageType}Button`);
+  if (storageButton) {
+    storageButton.onclick = () => openStorageModal(storageType);
+  } else {
+    console.error(`Error: ${storageType} button not found`);
+  }
 }
 
-// Close modal if user clicks outside
+// Function to open the storage modal
+function openStorageModal(storageType) {
+  document.getElementById(`${storageType}Modal`).style.display = 'block'; // Show the correct modal for Storage 1 or Storage 2
+}
+
+// Function to close the modal
+document.querySelectorAll('.close').forEach(closeBtn => {
+  closeBtn.onclick = function () {
+    const modal = this.closest('.modal');
+    modal.style.display = 'none'; // Hide modal
+  };
+});
+function getStorageWattage(pcieGen, size) {
+  const sizeInGb = parseInt(size.replace(/\D/g, '')); // Extract numerical size value
+
+  if (pcieGen.includes('5.0')) {
+    return sizeInGb >= 1000 ? 9 : 7; // PCIe 5.0: >=1TB -> 9W, otherwise -> 7W
+  } else if (pcieGen.includes('4.0')) {
+    return sizeInGb >= 1000 ? 8 : 6; // PCIe 4.0: >=1TB -> 8W, otherwise -> 6W
+  } else if (pcieGen.includes('3.0')) {
+    return sizeInGb >= 1000 ? 6 : 5; // PCIe 3.0: >=1TB -> 6W, otherwise -> 5W
+  } else {
+    // Assume for 2.5" drives or unknown types
+    return sizeInGb >= 1000 ? 5 : 3; // For >=1TB -> 5W, otherwise -> 3W
+  }
+}
+
+// Initialize event listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const storage1Button = document.getElementById('storage1Button');
+  const storage2Button = document.getElementById('storage2Button');
+
+  if (storage1Button) {
+    storage1Button.onclick = () => openStorageModal('storage1');
+  }
+
+  if (storage2Button) {
+    storage2Button.onclick = () => openStorageModal('storage2');
+  }
+
+  fetchStorage1(); // Fetch storage1 data on page load
+  fetchStorage2(); // Fetch storage2 data on page load
+});
+
+// Function to fetch PSUs from the database and populate the PSU modal
+function fetchPsus() {
+  fetch('get_psus.php') // Assuming this PHP file exists to return PSU data
+    .then(response => response.json())
+    .then(data => {
+      const psuTableBody = document.querySelector('#psu-table tbody');
+      if (!psuTableBody) {
+        console.error('Error: PSU table body not found!');
+        return;
+      }
+
+      psuTableBody.innerHTML = ''; // Clear the table
+
+      data.forEach(psu => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${psu.manufacturer}</td>
+          <td>${psu.name}</td>
+          <td>${psu.wattage} W</td>
+          <td>${psu.efficiency_rating || 'Unknown'}</td>
+          <td>${psu.form_factor}</td>
+          <td>${psu.type || 'Unknown'}</td>
+          <td><button onclick="addPsuToBuild('${psu.manufacturer}', '${psu.name}', ${psu.wattage})">Add</button></td>
+        `;
+        psuTableBody.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error fetching PSU data:', error));
+}
+
+// Function to fetch PSUs from the database and populate the PSU modal
+function fetchPsus() {
+  fetch('get_psus.php') // Assuming this PHP file exists to return PSU data
+    .then(response => response.json())
+    .then(data => {
+      const psuTableBody = document.querySelector('#psu-table tbody');
+      if (!psuTableBody) {
+        console.error('Error: PSU table body not found!');
+        return;
+      }
+
+      psuTableBody.innerHTML = ''; // Clear the table
+
+      data.forEach(psu => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${psu.manufacturer}</td>
+          <td>${psu.name}</td>
+          <td>${psu.wattage} W</td>
+          <td>${psu.efficiency_rating || 'Unknown'}</td>
+          <td>${psu.form_factor}</td>
+          <td>${psu.type || 'Unknown'}</td>
+          <td>${psu.Length || 'Unknown'} mm</td> <!-- PSU Length -->
+          <td>${psu.PSU_Tierlist || 'Unknown'}</td> <!-- PSU Tier List -->
+          <td><button onclick="addPsuToBuild('${psu.manufacturer}', '${psu.name}', ${psu.wattage})">Add</button></td>
+        `;
+        psuTableBody.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error fetching PSU data:', error));
+}
+
+// Function to add a PSU to the PC build
+function addPsuToBuild(manufacturer, name, wattage) {
+  const psuRow = document.getElementById('psuRow');
+
+  if (!psuRow) {
+    console.error('Error: PSU row not found!');
+    return;
+  }
+
+  // Update the row with the PSU information
+  psuRow.innerHTML = `
+    <td>PSU</td>
+    <td>${manufacturer} ${name}</td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removePsu(${wattage})">X</button></td>
+  `;
+
+  // Add PSU wattage to total wattage and update compatibility
+  totalWattage += wattage;
+  updateTotalWattageAndCompatibility();
+
+  // Close the modal after adding
+  document.getElementById('psuModal').style.display = 'none';
+}
+
+// Function to remove a PSU from the PC build
+function removePsu(wattage) {
+  const psuRow = document.getElementById('psuRow');
+
+  if (!psuRow) {
+    console.error('Error: PSU row not found!');
+    return;
+  }
+
+  // Reset the row content back to the "Pick your PSU" state
+  psuRow.innerHTML = `
+    <td>PSU</td>
+    <td><button id="psuButton">Pick your PSU</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
+
+  // Subtract PSU wattage from total wattage and update compatibility
+  totalWattage -= wattage;
+  updateTotalWattageAndCompatibility();
+
+  // Re-assign the event listener for the "Pick your PSU" button
+  const psuButton = document.getElementById('psuButton');
+  if (psuButton) {
+    psuButton.onclick = openPsuModal;
+  } else {
+    console.error('Error: PSU button not found');
+  }
+}
+
+// Function to update total wattage and compatibility status
+function updateTotalWattageAndCompatibility() {
+  const totalWattageEl = document.getElementById('total-wattage');
+  const compatibilityStatusEl = document.getElementById('compatibility-status');
+
+  if (!totalWattageEl || !compatibilityStatusEl) {
+    console.error('Error: Wattage or compatibility elements not found!');
+    return;
+  }
+
+  totalWattageEl.textContent = `Total Wattage: ${totalWattage}W`;
+
+  if (totalWattage < 500) {
+    compatibilityStatusEl.textContent = 'Compatibility: Compatible';
+    compatibilityStatusEl.className = 'compatible';
+  } else if (totalWattage >= 500 && totalWattage < 800) {
+    compatibilityStatusEl.textContent = 'Compatibility: Potential Issues';
+    compatibilityStatusEl.className = 'potential-issues';
+  } else {
+    compatibilityStatusEl.textContent = 'Compatibility: Incompatible';
+    compatibilityStatusEl.className = 'incompatible';
+  }
+}
+
+// Function to open the PSU modal
+function openPsuModal() {
+  document.getElementById('psuModal').style.display = 'block'; // Show PSU modal
+}
+
+// Function to close the modal
+document.querySelectorAll('.close').forEach(closeBtn => {
+  closeBtn.onclick = function () {
+    const modal = this.closest('.modal');
+    modal.style.display = 'none'; // Hide modal
+  };
+});
+
+// Search function to filter PSU table based on user input (case-insensitive)
+function searchPsu() {
+  const input = document.getElementById('psuSearch').value.toLowerCase(); // Convert search input to lowercase
+  const psuTableRows = document.querySelectorAll('#psu-table tbody tr');
+
+  psuTableRows.forEach(row => {
+    const rowText = row.textContent.toLowerCase(); // Convert row text to lowercase for case-insensitive comparison
+    row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide rows based on search input
+  });
+}
+
+// Initialize event listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const psuButton = document.getElementById('psuButton');
+  if (psuButton) {
+    psuButton.onclick = openPsuModal;
+  }
+
+  fetchPsus(); // Fetch PSU data on page load
+});
+// Function to fetch case data from the database and populate the modal
+function fetchCases() {
+  fetch('get_cases.php') // Assuming this PHP file returns JSON data for cases
+    .then(response => response.json())
+    .then(data => {
+      const caseTableBody = document.querySelector('#case-table tbody');
+      if (!caseTableBody) {
+        console.error('Error: Case table body not found!');
+        return;
+      }
+
+      caseTableBody.innerHTML = ''; // Clear the table
+
+      data.forEach(caseItem => {
+        // Combine PSU form factors into a single field
+        const psuFormFactors = [];
+        if (caseItem.PSU_SFX == 1) psuFormFactors.push('SFX');
+        if (caseItem.PSU_SFX_L == 1) psuFormFactors.push('SFX-L');
+        if (caseItem.PSU_ATX == 1) psuFormFactors.push('ATX');
+        if (caseItem.PSU_E_ATX == 1) psuFormFactors.push('E-ATX');
+
+        // Combine AIO support into a single field
+        const aioSupport = [];
+        if (caseItem.AIO_120 == 1) aioSupport.push('120mm');
+        if (caseItem.AIO_140 == 1) aioSupport.push('140mm');
+        if (caseItem.AIO_240 == 1) aioSupport.push('240mm');
+        if (caseItem.AIO_280 == 1) aioSupport.push('280mm');
+        if (caseItem.AIO_360 == 1) aioSupport.push('360mm');
+        if (caseItem.AIO_420 == 1) aioSupport.push('420mm');
+
+        // Combine motherboard support into a single field
+        const motherboardSupport = [];
+        if (caseItem.motherboard_itx == 1) motherboardSupport.push('ITX');
+        if (caseItem.motherboard_matx == 1) motherboardSupport.push('mATX');
+        if (caseItem.motherboard_atx == 1) motherboardSupport.push('ATX');
+        if (caseItem.motherboard_e_atx == 1) motherboardSupport.push('E-ATX');
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${caseItem.manufacturer}</td>
+          <td>${caseItem.name}</td>
+          <td>${caseItem.case_height ? caseItem.case_height + ' mm' : 'N/A'}</td>
+          <td>${caseItem.case_width ? caseItem.case_width + ' mm' : 'N/A'}</td>
+          <td>${caseItem.case_length ? caseItem.case_length + ' mm' : 'N/A'}</td>
+          <td>${caseItem.volume ? caseItem.volume + ' L' : 'N/A'}</td>
+          <td>${psuFormFactors.length ? psuFormFactors.join(', ') : 'N/A'}</td>
+          <td>${caseItem.max_psu_length ? caseItem.max_psu_length + ' mm' : 'N/A'}</td>
+          <td>${caseItem.warning ? caseItem.warning : 'No warning'}</td> <!-- Added warning field -->
+          <td>${caseItem.max_cpu_height ? caseItem.max_cpu_height + ' mm' : 'N/A'}</td>
+          <td>${aioSupport.length ? aioSupport.join(', ') : 'N/A'}</td>
+          <td>${caseItem.max_gpu_length ? caseItem.max_gpu_length + ' mm' : 'N/A'}</td>
+          <td>${motherboardSupport.length ? motherboardSupport.join(', ') : 'N/A'}</td>
+          <td>${caseItem.max_2_5_drives ? caseItem.max_2_5_drives : 'N/A'}</td>
+   
+          <td><button onclick="addCaseToBuild('${caseItem.manufacturer}', '${caseItem.name}', ${caseItem.volume})">Add</button></td>
+        `;
+        caseTableBody.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error fetching case data:', error));
+}
+
+// Function to add the selected case to the build
+function addCaseToBuild(manufacturer, name, volume) {
+  const caseRow = document.getElementById('caseRow'); // Target the correct case row
+
+  if (!caseRow) {
+    console.error('Error: Case row not found!');
+    return;
+  }
+
+  // Update the row with the case information
+  caseRow.innerHTML = `
+    <td>Case</td>
+    <td>${manufacturer} ${name} (${volume ? volume + ' L' : 'N/A'})</td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removeCase()">X</button></td>
+  `;
+
+  document.getElementById('caseModal').style.display = 'none'; // Close modal after adding
+}
+
+// Function to remove the case from the PC build
+function removeCase() {
+  const caseRow = document.getElementById('caseRow'); // Target the correct case row
+
+  if (!caseRow) {
+    console.error('Error: Case row not found!');
+    return;
+  }
+
+  // Reset the row content back to the "Pick your Case" state
+  caseRow.innerHTML = `
+    <td>Case</td>
+    <td><button id="caseButton">Pick your Case</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
+
+  // Re-assign the event listener for the "Pick your Case" button
+  const caseButton = document.getElementById('caseButton');
+  if (caseButton) {
+    caseButton.onclick = openCaseModal;
+  } else {
+    console.error('Error: Case button not found');
+  }
+}
+
+// Function to open the case modal
+function openCaseModal() {
+  document.getElementById('caseModal').style.display = 'block'; // Show case modal
+}
+
+// Function to close the modal when user clicks outside
 window.onclick = function(event) {
-  const modal1 = document.getElementById('storage1Modal');
-  const modal2 = document.getElementById('storage2Modal');
-  if (event.target === modal1 || event.target === modal2) {
-      modal1.style.display = 'none';
-      modal2.style.display = 'none';
+  const modal = document.getElementById('caseModal');
+  if (event.target === modal) {
+    modal.style.display = 'none';
   }
 };
 
-document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('cpuButton').onclick = openCpuModal;
-  document.getElementById('gpuButton').onclick = openGpuModal;
-  document.getElementById('motherboardButton').onclick = openMotherboardModal;  
-  document.getElementById('cpucoolerButton').onclick = openCpuCoolerModal;  
-  document.getElementById('ramButton').onclick = openRamModal;
-  
-  // Correct storage button event handlers
-  document.getElementById('storage1Button').onclick = () => openStorageModal(1);
-  document.getElementById('storage2Button').onclick = () => openStorageModal(2);
-  
-  // Fetch data for all components
-  fetchCpus();
-  fetchGpus();
-  fetchMotherboards();
-  fetchCpuCoolers();
-  fetchRams();
-  fetchStorage1();
-  fetchStorage2(); // Fetch data for Storage 1
+// Function to close the modal
+document.querySelectorAll('.close').forEach(closeBtn => {
+  closeBtn.onclick = function () {
+    const modal = this.closest('.modal');
+    modal.style.display = 'none'; // Hide modal
+  };
 });
-// Updated storage modal opener to accept the storage number
-function openStorageModal(storageNum) {
-  document.getElementById(`storage${storageNum}Modal`).style.display = 'block'; // Show the correct modal based on storage number
+
+// Search function to filter case table based on user input (case-insensitive)
+function searchCase() {
+  const input = document.getElementById('caseSearch').value.toLowerCase(); // Convert search input to lowercase
+  const caseTableRows = document.querySelectorAll('#case-table tbody tr');
+
+  caseTableRows.forEach(row => {
+    const rowText = row.textContent.toLowerCase(); // Convert row text to lowercase for case-insensitive comparison
+    row.style.display = rowText.includes(input) ? '' : 'none'; // Show or hide rows based on search input
+  });
 }
+
+// Initialize event listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const caseButton = document.getElementById('caseButton');
+  if (caseButton) {
+    caseButton.onclick = openCaseModal;
+  }
+
+  fetchCases(); // Fetch case data on page load
+});
