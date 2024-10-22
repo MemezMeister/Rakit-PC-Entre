@@ -155,3 +155,98 @@ function searchGpu() {
     row.style.display = gpuData.includes(input) ? '' : 'none';
   });
 }
+// Fetch CPU data from PHP
+function fetchCpus() {
+  fetch('get_cpus.php')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Received CPU data:", data); // Log the received data for debugging
+
+      const cpuTableBody = document.querySelector('#cpu-table tbody');
+      if (!cpuTableBody) {
+        console.error('Error: CPU table body not found!');
+        return;
+      }
+
+      cpuTableBody.innerHTML = ''; // Clear the table
+
+      data.forEach(cpu => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${cpu.brand}</td>
+          <td>${cpu.line}</td>
+          <td>${cpu.model}</td>
+          <td>${cpu.socket}</td>
+          <td>${cpu.p_cores}</td>
+          <td>${cpu.e_cores}</td>
+          <td>${cpu.threads}</td>
+          <td>${cpu.base_speed} GHz</td>
+          <td>${cpu.boost_speed} GHz</td>
+          <td>${cpu.pcie_gen}</td>
+          <td>${cpu.igpu}</td>
+          <td>${cpu.wattage}W</td>
+          <td>${cpu.memory_type}</td>
+          <td>${cpu.max_memory_speed} MHz</td>
+          <td>${cpu.cooler_included}</td>
+          <td><button onclick="addToBuild('cpu', '${cpu.brand}', '${cpu.line} ${cpu.model}', ${cpu.wattage})">Add</button></td>
+        `;
+        cpuTableBody.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error fetching CPU data:', error));
+}
+
+// Function to add CPU to the PC build list
+function addToBuild(type, brand, model, wattage) {
+  let componentRow = document.querySelector(`tr:nth-child(${getComponentRow(type)})`); // Get the specific row based on component type
+  componentRow.innerHTML = `
+    <td>${type.toUpperCase()}</td>
+    <td>${brand} ${model}</td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button onclick="removeComponent('${type}', ${wattage})">X</button></td>
+  `;
+
+  totalWattage += wattage;
+  updateTotalWattageAndCompatibility();
+  document.getElementById(`${type}Modal`).style.display = 'none'; // Close modal after adding
+}
+
+// Function to remove a component from the PC build list
+function removeComponent(type, wattage) {
+  let componentRow = document.querySelector(`tr:nth-child(${getComponentRow(type)})`);
+  componentRow.innerHTML = `
+    <td>${type.toUpperCase()}</td>
+    <td><button id="${type}Button">Pick your ${type.toUpperCase()}</button></td>
+    <td>RP 0</td>
+    <td><a href="#">Link</a></td>
+    <td><button>X</button></td>
+  `;
+  
+  totalWattage -= wattage;
+  updateTotalWattageAndCompatibility();
+  document.getElementById(`${type}Button`).onclick = () => openModal(type);
+}
+
+// Function to open the modal based on the component type
+function openModal(type) {
+  document.getElementById(`${type}Modal`).style.display = 'block'; // Show modal for specific component
+}
+
+// Helper function to get row number of a component in the table
+function getComponentRow(type) {
+  const components = ['cpu', 'motherboard', 'ram', 'cpucooler', 'storage1', 'storage2', 'gpu', 'psu', 'case'];
+  return components.indexOf(type) + 2; // Adding 2 because table starts from 1st row and index starts from 0
+}
+
+// Call fetchCpus to load the CPU data on page load
+document.addEventListener('DOMContentLoaded', function() {
+  fetchCpus(); // Fetch real data from get_cpus.php
+});
+
+

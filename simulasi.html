@@ -107,7 +107,40 @@
             </tr>
         </tbody>
     </table>
-
+    <div id="cpuModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Select a CPU</h2>
+            <input type="text" id="cpuSearch" placeholder="Search for CPU..." onkeyup="searchCpu()">
+            <div class="modal-body">
+                <table id="cpu-table">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Line</th>
+                            <th>Model</th>
+                            <th>Socket</th>
+                            <th>P Cores</th>
+                            <th>E Cores</th>
+                            <th>Threads</th>
+                            <th>Base Clock</th>
+                            <th>Boost Clock</th>
+                            <th>PCIE Gen</th>
+                            <th>iGPU</th>
+                            <th>TDP</th>
+                            <th>Memory Type</th>
+                            <th>Max Memory Speed</th>
+                            <th>Cooler Included</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- CPU data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <!-- GPU Selection Modal -->
     <div id="gpuModal" class="modal">
         <div class="modal-content">
