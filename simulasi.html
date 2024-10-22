@@ -21,14 +21,15 @@
 <body>
 
     <!-- Subheader for compatibility and wattage -->
-    <div class="subheader">
-        <div class="compatibility-status" id="compatibility-status">
-            Compatibility: Unknown
-        </div>
-        <div class="total-wattage" id="total-wattage">
-            Total Wattage: 0W
+    <div class="subheader unknown">
+        <div id="compatibility-status">Compatibility: Unknown</div>
+        <div id="total-wattage">Total Wattage: 0W</div>
+        <button id="issues-button">!</button>
+        <div class="issues-popup" id="issues-popup">
+            <p id="issues-list"></p>
         </div>
     </div>
+    
 
     <!-- Main build table -->
     <table class="table-container">
@@ -49,7 +50,7 @@
                 <td><a href="#">Link</a></td>
                 <td><button>X</button></td>
               </tr>
-              <tr id="motherboard-row">
+              <tr id="motherboardRow">
                 <td>Motherboard</td>
                 <td><button id="motherboardButton">Pick your Motherboard</button></td>
                 <td>RP 0</td>
@@ -157,6 +158,7 @@
                             <th>Manufacturer</th>
                             <th>Model</th>
                             <th>Wattage</th>
+                            <th>PCie Gen</th>
                             <th>Connector Type</th>
                             <th>Length</th>
                             <th>Width</th>
@@ -396,6 +398,7 @@
         </div>
     </div>
     <!-- Include JavaScript file -->
+    <script src="CompatibilityTest.js"></script>
     <script src="simulasi.js"></script>
 </body>
 </html>

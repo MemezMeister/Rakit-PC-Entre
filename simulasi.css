@@ -30,33 +30,83 @@ header {
     font-weight: bold;
     margin-top: 10px;
     border-radius: 5px;
+    width: 100%;
+    position: relative; /* Ensure relative positioning for absolute button placement */
 }
 
-/* Styles for compatibility status */
 #compatibility-status {
     font-size: 18px;
+    display: flex;
+    align-items: center;
 }
 
-#total-wattage {
-    font-size: 18px;
+#issues-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #000000; /* Black background */
+    border: none;
+    color: #ffae00; /* Yellow ! */
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 10px; /* Add space between the status and button */
+    display: none; /* Hidden by default, shown when there are issues */
+    justify-content: center;
+    align-items: center;
 }
 
-/* Green for compatible */
-.compatible {
-    background-color: #00FF00;
+#issues-button:hover {
+    background-color: #e69a00; /* Slightly darker on hover */
+}
+
+.issues-popup {
+    display: none; /* Hidden initially */
+    position: absolute;
+    top: 40px; /* Adjust this for spacing below the button */
+    right: 10px;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px; /* Adjust size as necessary */
+    z-index: 1000;
+}
+
+.issues-popup p {
+    margin: 0;
+    padding: 0;
+    color: black;
 }
 
 /* Yellow for potential issues */
 .potential-issues {
-    background-color: #FFFF00;
-    color: #000;
+    background-color: #ffae00; /* Yellow */
+    color: black;
 }
 
 /* Red for incompatible */
-.incompatible {
-    background-color: #FF0000;
+.incompatibles {
+    background-color: #5a0000; /* Red */
+    color: white;
+}
+.compatibles {
+    background-color: #10be76; /* Red */
+    color: white;
+}
+/* Default unknown state */
+.unknown {
+    background-color: #808080;
+    color: black;
 }
 
+/* General styling for the status bar */
+.status-bar {
+    padding: 10px;
+    font-size: 18px;
+    text-align: center;
+}
 /* Logo section */
 .logo img {
     width: 150px; /* Adjust the size of the logo */
@@ -84,17 +134,6 @@ nav ul li a:hover {
     color: #007FFF; /* Darker blue for hover effect */
 }
 
-/* Subheader for compatibility and wattage */
-.subheader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #00FF00; /* Green for compatibility */
-    color: white;
-    font-weight: bold;
-    margin-top: 10px;
-}
 
 /* Styles for when compatibility changes */
 .compatibility-status {
