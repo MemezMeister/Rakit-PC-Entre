@@ -324,6 +324,7 @@ async function checkRamCompatibility() {
   return true; // Continue checks if this one is not applicable
 }
 async function checkCpuCoolerRamClearanceCompatibility() {
+  if (selectedRamType && selectedCoolerSupportedSockets) {
   const compatibilityStatusEl = document.getElementById('compatibility-status');
   const subheaderEl = document.querySelector('.subheader');
 
@@ -367,8 +368,91 @@ async function checkCpuCoolerRamClearanceCompatibility() {
     console.log("Compatible: RAM height is within CPU cooler clearance.");
     return true;  // Continue to the next checks
   }
+}return true;
+}
+async function checkTotalWattageVsPsu() {
+  if (selectedCpuSocket && selectedRamType && selectedMotherboardSocket && selectedGpuBrand) {
+    // All components are selected, now check the total wattage vs PSU
+    const compatibilityStatusEl = document.getElementById('compatibility-status');
+    const subheaderEl = document.querySelector('.subheader');
+  
+    // Clear existing status classes
+    subheaderEl.classList.remove('compatibles', 'potential-issues', 'incompatibles');
+  
+    // Log current values
+    console.log("Checking Total Wattage vs PSU...");
+    console.log("Total Wattage:", totalWattage);
+    console.log("PSU Wattage:", selectedPsuWattage);
+    console.log("GPU Type:",  selectedGpuBrand); // NVIDIA or other
+  
+    // Determine wattage buffer based on GPU type
+    let recommendedWattageBuffer;
+    if ( selectedGpuBrand &&  selectedGpuBrand.toLowerCase() === 'nvidia') {
+      recommendedWattageBuffer = 250;
+      console.log("GPU is NVIDIA. Adding 250W buffer to total wattage.");
+    } else {
+      recommendedWattageBuffer = 200;
+      console.log("GPU is NOT NVIDIA (likely AMD or Intel). Adding 200W buffer to total wattage.");
+    }
+  
+    // Calculate the required wattage with the buffer
+    const requiredWattage = totalWattage + recommendedWattageBuffer;
+    console.log(`Required Wattage (Total + Buffer): ${requiredWattage}W`);
+  
+    // Check if the PSU wattage is sufficient
+    if (requiredWattage <= selectedPsuWattage) {
+      // PSU wattage is sufficient
+      subheaderEl.classList.add('compatibles');
+      compatibilityStatusEl.textContent = "Compatibility: PSU wattage is sufficient.";
+      subheaderEl.removeAttribute('title');
+      console.log("PSU wattage is sufficient.");
+      return true;
+    } else {
+      // PSU wattage is insufficient
+      subheaderEl.classList.add('incompatibles');
+      compatibilityStatusEl.textContent = "Compatibility: PSU wattage is insufficient.";
+      subheaderEl.title = `For NVIDIA GPUs, it is recommended to have an additional 250W buffer over the total wattage. For non-NVIDIA GPUs (AMD/Intel), a 200W buffer is recommended. Your PSU (${selectedPsuWattage}W) does not meet the recommended wattage (${requiredWattage}W).`;
+      console.log("PSU wattage is insufficient. Incompatible. a 200W buffer is recommended.");
+      return false;
+    }
+  }
+
+  return true;
 }
 
+async function checkCpuCoolerHeightCompatibility() {
+  const compatibilityStatusEl = document.getElementById('compatibility-status');
+  const subheaderEl = document.querySelector('.subheader');
+
+  // Clear existing status classes
+  subheaderEl.classList.remove('compatibles', 'potential-issues', 'incompatibles');
+
+  // Ensure that both cooler height and case max cooler height are available
+  if (selectedCoolerHeight && selectedCaseMaxCpuCoolerHeight) {
+    console.log(`Selected CPU Cooler Height: ${selectedCoolerHeight}mm`);
+    console.log(`Case Max CPU Cooler Height: ${selectedCaseMaxCpuCoolerHeight}mm`);
+
+    if (selectedCoolerHeight > selectedCaseMaxCpuCoolerHeight) {
+      // CPU cooler is too tall for the case
+      subheaderEl.classList.add('incompatibles');
+      compatibilityStatusEl.textContent = "Compatibility: CPU cooler height exceeds case max cooler height. Please pick a shorter CPU cooler.";
+      subheaderEl.title = `The selected CPU cooler (${selectedCoolerHeight}mm) exceeds the case's max CPU cooler height (${selectedCaseMaxCpuCoolerHeight}mm).`;
+      console.log("CPU cooler height exceeds case max cooler height.");
+      return false;  // Mark as incompatible and stop further checks
+    } else {
+      // CPU cooler and case are compatible
+      subheaderEl.classList.add('compatibles');
+      compatibilityStatusEl.textContent = "Compatibility: CPU cooler height is compatible with the case.";
+      subheaderEl.removeAttribute('title');
+      console.log("CPU cooler height is compatible with the case.");
+      return true;  // Mark as compatible
+    }
+  } else {
+    console.log("No CPU cooler height or case max CPU cooler height provided for comparison.");
+  }
+
+  return true;  // Return true if not applicable
+}
 
 // Function to run all checks and stop if an incompatibility is found
 async function performAllChecks() {
@@ -399,7 +483,10 @@ async function performAllChecks() {
   if (!isCpuCoolerCompatible) return; 
   const isRamCoolerCompatible = await checkCpuCoolerRamClearanceCompatibility();
   if (!isRamCoolerCompatible) return;  // Stop further checks if incompatible
-
+  const isPSUWattageCompatible = await checkTotalWattageVsPsu();
+  if (!isPSUWattageCompatible) return;
+  const isCoolerHeightCompatible = await checkCpuCoolerHeightCompatibility();
+  if (!isCoolerHeightCompatible) return;
   // Final update to display compatibility or potential issues
   updateFinalCompatibilityStatus(potentialIssues.length > 0);
 }

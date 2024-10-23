@@ -1,0 +1,88 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #00D8FF; /* Neon blue color */
+}
+
+header .logo img {
+    max-height: 50px;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+header nav ul li {
+    display: inline;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: bold;
+}
+
+.container {
+    width: 90%;
+    margin: 20px auto;
+}
+
+h1 {
+    text-align: center;
+    color: #00D8FF;
+}
+
+#prebuild-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjusted for larger cards */
+    gap: 20px;  /* Spacing between the cards */
+    justify-content: center;
+}
+
+.prebuild-item {
+    width: 300px;  /* Adjust the overall width of each item */
+    height: auto;
+    border: 1px solid #ccc;
+    padding: 15px;
+    text-align: center;
+    background-color: #f8f8f8;
+    margin: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+.prebuild-item h2 {
+    font-size: 1.5em;
+}
+
+.view-details-btn {
+    background-color: #00D8FF;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.view-details-btn:hover {
+    background-color: #07b6d5;
+}
+.prebuild-thumbnail {
+    width: 250px;  /* Change the width to a larger value */
+    height: 250px;  /* Change the height to a larger value */
+    object-fit: cover; /* Ensures the image fills the box */
+    margin-bottom: 15px;
+}

@@ -1,0 +1,123 @@
+/* Reset default browser styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #00D8FF; /* Neon blue color */
+    position: fixed; /* Fixed header */
+    top: 0;
+    left: 0;
+    width: 100%; /* Full width */
+    z-index: 1000; /* Ensures header stays on top */
+}
+
+header .logo img {
+    max-height: 50px;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+header nav ul li {
+    display: inline;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: bold;
+}
+
+.container {
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+}
+
+/* Center the PC details content */
+.pc-details-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 80%;  /* Adjust the width as needed */
+    max-width: 1200px;
+    gap: 20px;
+}
+
+.image-container {
+    width: 50%;  /* Adjust the width as needed */
+}
+
+.image-container img {
+    width: 100%;  /* Make the image take up full width */
+    height: auto;
+    border-radius: 5px;
+}
+
+.pc-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40%;  /* Adjust the width as needed */
+}
+
+.pc-info h1 {
+    color: #4CAF50;
+    font-size: 2em;  /* Increase the font size */
+}
+
+.pc-info .buy-now-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    width: 150px;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+.pc-info .buy-now-btn:hover {
+    background-color: #388e3c;
+}
+
+/* Specifications under the image */
+.pc-specs {
+    margin-top: 20px;
+}
+
+.pc-specs h3 {
+    color: #4CAF50;
+}
+
+.pc-specs ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.pc-specs li {
+    margin: 5px 0;
+}

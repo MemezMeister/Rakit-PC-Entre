@@ -177,6 +177,7 @@ function openGpuModal() {
 // Function to fetch GPU data from PHP and populate the modal
 let selectedGpuPcieGen = null; // Variable to store selected GPU PCIe Gen
 let selectedGpuLength=null;
+let selectedGpuBrand=null;  
 function fetchGpus() {
   fetch('get_gpus.php') // Make sure this PHP file returns the correct JSON
     .then(response => {
@@ -224,6 +225,7 @@ function addGpuToBuild(brand, model, wattage, pcie_gen, length) {
   // Store the selected GPU PCIe generation
   selectedGpuPcieGen = pcie_gen;
   selectedGpuLength = length; 
+  selectedGpuBrand = brand;
 
   // Update the row with the selected GPU data
   gpuRow.innerHTML = `
@@ -268,6 +270,7 @@ function removeGpu(wattage) {
   // Clear the selected GPU PCIe generation
   selectedGpuPcieGen = null;
   selectedGpuLength = null; 
+  selectedGpuBrand = null;
   // Re-attach the GPU button's event listener
   document.getElementById('gpuButton').onclick = openGpuModal;
 
@@ -1082,7 +1085,7 @@ function fetchPsus() {
     .catch(error => console.error('Error fetching PSU data:', error));
 }
 
-
+let selectedPsuWattage=null;
 // Function to add a PSU to the PC build
 function addPsuToBuild(manufacturer, name, wattage, formFactor, length) {
   const psuRow = document.getElementById('psuRow');
@@ -1104,7 +1107,7 @@ function addPsuToBuild(manufacturer, name, wattage, formFactor, length) {
   // Store the selected PSU form factor and length for compatibility checks
   selectedPsuFormFactor = formFactor;
   selectedPsuLength = length;
-
+  selectedPsuWattage=wattage;
   // Perform all compatibility checks after adding the PSU
   performAllChecks();
 
@@ -1145,6 +1148,7 @@ function removePsu(wattage) {
   }
   selectedPsuFormFactor = null;
   selectedPsuLength = null;
+  selectedPsuWattage=null;
   resetCompatibilityStatus();
   performAllChecks();
 }
@@ -1225,7 +1229,6 @@ function fetchCases() {
         if (caseItem.motherboard_matx == 1) motherboardSupport.push('M-ATX');
         if (caseItem.motherboard_atx == 1) motherboardSupport.push('ATX');
         if (caseItem.motherboard_e_atx == 1) motherboardSupport.push('E-ATX');
-
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${caseItem.manufacturer}</td>
@@ -1243,7 +1246,7 @@ function fetchCases() {
           <td>${motherboardSupport.length ? motherboardSupport.join(', ') : 'N/A'}</td>
           <td>${caseItem.max_2_5_drives ? caseItem.max_2_5_drives : 'N/A'}</td>
    
-          <td><button onclick="addCaseToBuild('${caseItem.manufacturer}', '${caseItem.name}', ${caseItem.volume}, '${motherboardSupport.join(', ')}', '${psuFormFactors.join(', ')}', ${caseItem.max_psu_length},${caseItem.max_gpu_length})">Add</button></td>
+          <td><button onclick="addCaseToBuild('${caseItem.manufacturer}', '${caseItem.name}',${caseItem.volume}, '${motherboardSupport.join(', ')}', '${psuFormFactors.join(', ')}', ${caseItem.max_psu_length},${caseItem.max_gpu_length}, ${caseItem.max_cpu_height})">Add</button></td>
         `;
         caseTableBody.appendChild(row);
       });
@@ -1251,10 +1254,10 @@ function fetchCases() {
     .catch(error => console.error('Error fetching case data:', error));
 }
 
-
+let selectedCaseMaxCpuCoolerHeight = null;
 let selectedCaseSupportedFormFactor=null;
 // Function to add the selected case to the build
-function addCaseToBuild(manufacturer, name, volume, supportedMotherboards, supportedPsuFormFactors, maxPsuLength, max_gpu_length) {
+function addCaseToBuild(manufacturer, name, volume, motherboardSupport, supportedPsuFormFactors, maxPsuLength, max_gpu_length, max_cpu_height) {
   const caseRow = document.getElementById('caseRow'); // Target the correct case row
 
   if (!caseRow) {
@@ -1270,12 +1273,20 @@ function addCaseToBuild(manufacturer, name, volume, supportedMotherboards, suppo
     <td><a href="#">Link</a></td>
     <td><button onclick="removeCase()">X</button></td>
   `;
-
-  // Store supported motherboard and PSU form factors from the case
-  selectedCaseSupportedFormFactor = supportedMotherboards.split(', ');
+  console.log("Max CPU Cooler Height for selected case:", max_cpu_height);
+  // Ensure motherboardSupport is an array and split it only if it's a string
+  if (typeof motherboardSupport === 'string') {
+    selectedCaseSupportedFormFactor = motherboardSupport.split(', ');
+  } else if (Array.isArray(motherboardSupport)) {
+    selectedCaseSupportedFormFactor = motherboardSupport; // Already an array
+  } else {
+    selectedCaseSupportedFormFactor = []; // Fallback to empty array if not a string or array
+  }
+  selectedCaseMaxCpuCoolerHeight=max_cpu_height;
   selectedCasePsuFormFactor = supportedPsuFormFactors || '';  // Ensure formFactor is passed as a string or empty
   selectedCasePsuLength = maxPsuLength || 0; // Storing max PSU length
   selectedCaseMaxGpuLength = max_gpu_length;  // Corrected variable name to match the function parameter
+ 
   document.getElementById('caseModal').style.display = 'none'; // Close modal after adding
   
   performAllChecks();  // Perform all checks after adding the case
@@ -1301,10 +1312,12 @@ function removeCase() {
     <td><a href="#">Link</a></td>
     <td><button>X</button></td>
   `;
+ 
   selectedCaseSupportedFormFactor = null;
   selectedCasePsuFormFactor = null;  // Ensure formFactor is passed as a string or empty
   selectedCasePsuLength = null; // Storing max PSU length
   selectedCaseMaxGpuLength = null;
+  selectedCaseMaxCpuCoolerHeight = null;
   // Re-assign the event listener for the "Pick your Case" button
   const caseButton = document.getElementById('caseButton');
   if (caseButton) {
