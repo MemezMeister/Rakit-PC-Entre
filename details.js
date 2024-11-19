@@ -20,9 +20,11 @@ function fetchPrebuildDetails() {
 
             console.log("Prebuild found:", prebuild);  // Log the selected prebuild object
 
+
+
             // Populate the details page with prebuild data
             document.getElementById('pc-name').textContent = prebuild.PCName || "N/A";
-            document.getElementById('pc-price').textContent = prebuild.Price ? `Rp ${prebuild.Price}` : "N/A";
+            document.getElementById('pc-price').textContent = prebuild.Price ? `Rp ${formatPrice(prebuild.Price)}` : "N/A";
             document.getElementById('pc-cpu').textContent = prebuild.CPU || "N/A";
             document.getElementById('pc-cooler').textContent = prebuild.Cooler || "N/A";
             document.getElementById('pc-mobo').textContent = prebuild.Mobo || "N/A";
@@ -37,11 +39,18 @@ function fetchPrebuildDetails() {
             const cleanedImage = prebuild.pictures ? prebuild.pictures.trim() : '';
             const imagePath = `/Rakit-PC-Entre/Prebuilds/${cleanedImage}`;
             console.log("Image path:", imagePath);  // Log the image path
-
+            // Format the price with periods as thousand separators
+            const formatPrice = (Price) => {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'decimal',
+                    useGrouping: true,
+                }).format(Price);
+            };
             // Load the image
             const pcImage = document.getElementById('pc-picture');
             pcImage.src = imagePath;
             pcImage.onerror = () => console.error("Image not found:", imagePath);
+            
             // Set WhatsApp button link
             const waLink = `https://wa.me/628111813255?text=Halo%20saya%20tertarik%20dengan%20${prebuild.PCName}`;
             document.getElementById('buy-now').onclick = () => {

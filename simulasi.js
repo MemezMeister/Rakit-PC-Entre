@@ -72,7 +72,9 @@ function fetchCpus() {
           <td>${cpu.memory_type}</td>
           <td>${cpu.max_memory_speed} MHz</td>
           <td>${cpu.cooler_included}</td>
-          <td><button onclick="addCpuToBuild('${cpu.brand}', '${cpu.model}', '${cpu.socket}', ${cpu.p_cores}, ${wattage},'${cpu.pcie_gen}' )">Add</button></td>
+          <td>${cpu.price}</td> <!-- Display price -->
+          <td>${cpu.link}</td> <!-- Display link -->
+          <td><button onclick="addCpuToBuild('${cpu.brand}', '${cpu.line}', '${cpu.model}', '${cpu.socket}', ${cpu.p_cores}, ${wattage},'${cpu.pcie_gen}', ${cpu.price}, '${cpu.link}')">Add</button></td>
         `;
         cpuTableBody.appendChild(row);
       });
@@ -82,7 +84,7 @@ function fetchCpus() {
 let selectedMotherboardVCoreVRM = null
 let selectedCpuCores = null
 // Function to add CPU to the PC build and check compatibility
-function addCpuToBuild(brand, model, socket, cores, wattage, pcie_gen) {
+function addCpuToBuild(brand, line, model, socket, cores, wattage, pcie_gen, price, link) {
   const cpuRow = document.getElementById('cpuRow');
   if (!cpuRow) {
     console.error('Error: CPU row not found');
@@ -97,9 +99,9 @@ function addCpuToBuild(brand, model, socket, cores, wattage, pcie_gen) {
   // Update the row with the selected CPU data
   cpuRow.innerHTML = `
     <td>CPU</td>
-    <td>${brand} ${model}</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>${brand} ${line} ${model}</td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removeCpu(${wattage})">X</button></td>
   `;
 
@@ -203,9 +205,9 @@ function fetchGpus() {
           <td>${gpu.length || 'N/A'} mm</td>
           <td>${gpu.width || 'N/A'} mm</td>
           <td>${gpu.height || 'N/A'} mm</td>
-          <td>${gpu.price ? `RP ${gpu.price}` : 'N/A'}</td>
-          <td>${gpu.link ? `<a href="${gpu.link}" target="_blank">Link</a>` : 'N/A'}</td>
-          <td><button onclick="addGpuToBuild('${gpu.brand}', '${gpu.model}', ${gpu.wattage}, '${gpu.pcie_gen}',${gpu.length})">Add</button></td> <!-- Pass PCIe Gen -->
+          <td>${gpu.price}</td> <!-- Display price -->
+          <td>${gpu.link}</td> <!-- Display link -->
+          <td><button onclick="addGpuToBuild('${gpu.brand}','${gpu.manufacturer}', '${gpu.model}','${gpu.gpu_name}', ${gpu.wattage}, '${gpu.pcie_gen}',${gpu.length}, ${gpu.price},'${gpu.link}')">Add</button></td> <!-- Pass PCIe Gen -->
         `;
         gpuTableBody.appendChild(row);
       });
@@ -214,7 +216,7 @@ function fetchGpus() {
 }
 
 // Function to add GPU to the PC build
-function addGpuToBuild(brand, model, wattage, pcie_gen, length) {
+function addGpuToBuild(brand ,manufacturer, model,  gpu_name, wattage, pcie_gen, length, price, link) {
   const gpuRow = document.getElementById('gpuRow'); // Target the GPU row directly
 
   if (!gpuRow) {
@@ -230,9 +232,9 @@ function addGpuToBuild(brand, model, wattage, pcie_gen, length) {
   // Update the row with the selected GPU data
   gpuRow.innerHTML = `
     <td>GPU</td>
-    <td>${brand} ${model}</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>${manufacturer} ${model} ${gpu_name}</td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removeGpu(${wattage})">X</button></td>
   `;
 
@@ -382,7 +384,9 @@ function fetchMotherboards() {
           <td>${motherboard.wifi ? 'Yes' : 'No'}</td>
           <td>${motherboard.audio}</td>
           <td>${vcoreVRM}</td>
-          <td><button onclick="addMotherboardToBuild('${motherboard.brand}', '${motherboard.name}', '${motherboard.socket}', ${vcoreVRM}, '${motherboard.form_factor}', ${motherboardWattage},'${motherboard.pcie_gen}' ,'${motherboard.ram_type}')">Add</button></td>
+          <td>${motherboard.price}</td> <!-- Display price -->
+          <td>${motherboard.link}</td> <!-- Display link -->
+          <td><button onclick="addMotherboardToBuild('${motherboard.brand}', '${motherboard.name}', '${motherboard.socket}', ${vcoreVRM}, '${motherboard.form_factor}', ${motherboardWattage},'${motherboard.pcie_gen}' ,'${motherboard.ram_type}',${motherboard.price} ,'${motherboard.link}')">Add</button></td>
         `;
         motherboardTableBody.appendChild(row);
       });
@@ -390,7 +394,7 @@ function fetchMotherboards() {
     .catch(error => console.error('Error fetching Motherboard data:', error));
 }
 // Function to add motherboard to the PC build and check compatibility
-function addMotherboardToBuild(brand, name, socket, vcoreVRM, formFactor, wattage, pcie_gen,ram_type) {
+function addMotherboardToBuild(brand, name, socket, vcoreVRM, formFactor, wattage, pcie_gen,ram_type,price,link) {
   const motherboardRow = document.getElementById('motherboardRow');
 
   if (!motherboardRow) {
@@ -411,8 +415,8 @@ function addMotherboardToBuild(brand, name, socket, vcoreVRM, formFactor, wattag
   motherboardRow.innerHTML = `
     <td>Motherboard</td>
     <td>${brand} ${name}</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removeMotherboard(${wattage})">X</button></td>
   `;
 
@@ -534,7 +538,9 @@ function fetchCpuCoolers() {
           <td>${cooler.am4 == 1 ? 'Yes' : 'No'}</td>
           <td>${cooler.LGA_1700 == 1 ? 'Yes' : 'No'}</td>
           <td>${cooler.LGA_1200 == 1 ? 'Yes' : 'No'}</td>
-          <td><button onclick="addCpuCoolerToBuild('${cooler.manufacturer}', '${cooler.name}', ${cooler.am5}, ${cooler.am4}, ${cooler.LGA_1700}, ${cooler.LGA_1200}, ${cooler.height},${cooler.ram_clearance})">Add</button></td>
+          <td>${cooler.price}</td> <!-- Display price -->
+          <td>${cooler.link}</td> <!-- Display link -->
+          <td><button onclick="addCpuCoolerToBuild('${cooler.manufacturer}', '${cooler.name}', ${cooler.am5}, ${cooler.am4}, ${cooler.LGA_1700}, ${cooler.LGA_1200}, ${cooler.height},${cooler.ram_clearance},${cooler.price} ,'${cooler.link}')">Add</button></td>
         `;
         cpuCoolerTableBody.appendChild(row);
       });
@@ -545,7 +551,7 @@ let selectedCoolerHeight = null;
 let selectedCoolerSupportedSockets = null;
 let selectedCpuCoolerClearance =null;
 // Function to add a CPU cooler to the PC build
-function addCpuCoolerToBuild(manufacturer, name, am5, am4, lga1700, lga1200, height, ram_clearance) {
+function addCpuCoolerToBuild(manufacturer, name, am5, am4, lga1700, lga1200, height, ram_clearance, price, link) {
   const cpucoolerRow = document.getElementById('cpucoolerRow');
 
   if (!cpucoolerRow) {
@@ -557,8 +563,8 @@ function addCpuCoolerToBuild(manufacturer, name, am5, am4, lga1700, lga1200, hei
   cpucoolerRow.innerHTML = `
     <td>CPU Cooler</td>
     <td>${manufacturer} ${name}</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removeCpuCooler()">X</button></td>
   `;
 
@@ -679,7 +685,9 @@ function fetchRams() {
           <td>${ram.speed}</td>
           <td>${ram.cas_latency}</td>
           <td>${ram.height_mm} mm</td>
-          <td><button onclick="addRamToBuild('${ram.brand}', '${ram.model} (${ram.capacity}) (${ram.speed})', '${ram.memory_type}', '${ram.capacity}',${ram.height_mm})">Add</button></td>
+          <td>${ram.price}</td> <!-- Display price -->
+          <td>${ram.link}</td> <!-- Display link -->
+          <td><button onclick="addRamToBuild('${ram.brand}', '${ram.model} (${ram.capacity}) (${ram.speed})', '${ram.memory_type}', '${ram.capacity}',${ram.height_mm}, ${ram.price} ,'${ram.link}')">Add</button></td>
         `;
         ramTableBody.appendChild(row);
       });
@@ -723,7 +731,7 @@ function calculateRamWattage(memoryType, capacity) {
 let selectedRamType=null;
 let selectedRamHeight=null;
 // Function to add RAM to the PC build
-function addRamToBuild(brand, model, memoryType, capacity, height_mm) {
+function addRamToBuild(brand, model, memoryType, capacity, height_mm, price, link) {
   const ramRow = document.getElementById('ramRow');
   if (!ramRow) {
     console.error('Error: RAM row not found!');
@@ -738,8 +746,8 @@ function addRamToBuild(brand, model, memoryType, capacity, height_mm) {
   ramRow.innerHTML = `
     <td>RAM</td>
     <td>${brand} ${model}</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removeRam('${memoryType}', '${capacity}', ${wattageToAdd})">X</button></td>
   `;
 
@@ -905,8 +913,10 @@ function fetchStorage1() {
           <td>${nandType}</td>
           <td>${storage.dram_cache ? 'Yes' : 'No'}</td>
           <td>${controller}</td>
-          <td><button onclick="addStorageToBuild('storage1', '${storage.manufacturer}', '${storage.name}', '${storage.PCIE_gen}', '${storage.size}')">Add</button></td>
-        `;
+          <td>${storage.price}</td> <!-- Display price -->
+          <td>${storage.link}</td> <!-- Display link -->
+          <td><button onclick="addStorageToBuild('storage1', '${storage.manufacturer}', '${storage.name}', '${storage.PCIE_gen}', '${storage.size}','${storage.price}' ,'${storage.link}' )">Add</button></td>
+        `;'${motherboard.pcie_gen}' ,'${motherboard.ram_type}'
         storage1TableBody.appendChild(row);
       });
     })
@@ -942,7 +952,9 @@ function fetchStorage2() {
           <td>${nandType}</td>
           <td>${storage.dram_cache ? 'Yes' : 'No'}</td>
           <td>${controller}</td>
-          <td><button onclick="addStorageToBuild('storage2', '${storage.manufacturer}', '${storage.name}', '${storage.PCIE_gen}', '${storage.size}')">Add</button></td>
+          <td>${storage.price}</td> <!-- Display price -->
+          <td>${storage.link}</td> <!-- Display link -->
+          <td><button onclick="addStorageToBuild('storage1', '${storage.manufacturer}', '${storage.name}', '${storage.PCIE_gen}', '${storage.size}','${storage.price}' ,'${storage.link}' )">Add</button></td>
         `;
         storage2TableBody.appendChild(row);
       });
@@ -950,7 +962,7 @@ function fetchStorage2() {
     .catch(error => console.error('Error fetching Storage 2 data:', error));
 }
 // Function to add storage to the PC build
-function addStorageToBuild(storageType, manufacturer, name, pcieGen, size) {
+function addStorageToBuild(storageType, manufacturer, name, pcieGen, size, price, link) {
   const storageRow = document.getElementById(`${storageType}Row`);
 
   if (!storageRow) {
@@ -965,8 +977,8 @@ function addStorageToBuild(storageType, manufacturer, name, pcieGen, size) {
   storageRow.innerHTML = `
     <td>${storageType === 'storage1' ? 'Storage 1' : 'Storage 2'}</td>
     <td>${manufacturer} ${name} (${pcieGen}) (${size})</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removeStorage('${storageType}', ${wattageToAdd})">X</button></td>
   `;
 
@@ -1077,7 +1089,9 @@ function fetchPsus() {
           <td>${psu.type || 'Unknown'}</td>
           <td>${psu.Length || 'Unknown'} mm</td> <!-- PSU Length -->
           <td>${psu.PSU_Tierlist || 'Unknown'}</td> <!-- PSU Tier List -->
-          <td><button onclick="addPsuToBuild('${psu.manufacturer}', '${psu.name}', ${psu.wattage}, '${psu.form_factor}', ${psu.Length})">Add</button></td>
+          <td>${psu.price}</td> <!-- Display price -->
+          <td>${psu.link}</td> <!-- Display link -->
+          <td><button onclick="addPsuToBuild('${psu.manufacturer}', '${psu.name}', ${psu.wattage}, '${psu.form_factor}', ${psu.Length},${psu.price} ,'${psu.link}')">Add</button></td>
         `;
         psuTableBody.appendChild(row);
       });
@@ -1087,7 +1101,7 @@ function fetchPsus() {
 
 let selectedPsuWattage=null;
 // Function to add a PSU to the PC build
-function addPsuToBuild(manufacturer, name, wattage, formFactor, length) {
+function addPsuToBuild(manufacturer, name, wattage, formFactor, length, price,link) {
   const psuRow = document.getElementById('psuRow');
 
   if (!psuRow) {
@@ -1098,9 +1112,9 @@ function addPsuToBuild(manufacturer, name, wattage, formFactor, length) {
   // Update the row with the PSU information
   psuRow.innerHTML = `
     <td>PSU</td>
-    <td>${manufacturer} ${name}</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>${manufacturer} ${name} </td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removePsu()">X</button></td>
   `;
 
@@ -1245,8 +1259,10 @@ function fetchCases() {
           <td>${caseItem.max_gpu_length ? caseItem.max_gpu_length + ' mm' : 'N/A'}</td>
           <td>${motherboardSupport.length ? motherboardSupport.join(', ') : 'N/A'}</td>
           <td>${caseItem.max_2_5_drives ? caseItem.max_2_5_drives : 'N/A'}</td>
+          <td>${caseItem.price}</td> <!-- Display price -->
+          <td>${caseItem.link}</td> <!-- Display link -->
    
-          <td><button onclick="addCaseToBuild('${caseItem.manufacturer}', '${caseItem.name}',${caseItem.volume}, '${motherboardSupport.join(', ')}', '${psuFormFactors.join(', ')}', ${caseItem.max_psu_length},${caseItem.max_gpu_length}, ${caseItem.max_cpu_height})">Add</button></td>
+          <td><button onclick="addCaseToBuild('${caseItem.manufacturer}', '${caseItem.name}',${caseItem.volume}, '${motherboardSupport.join(', ')}', '${psuFormFactors.join(', ')}', ${caseItem.max_psu_length},${caseItem.max_gpu_length}, ${caseItem.max_cpu_height},'${caseItem.price}' ,'${caseItem.Link}')">Add</button></td>
         `;
         caseTableBody.appendChild(row);
       });
@@ -1257,7 +1273,7 @@ function fetchCases() {
 let selectedCaseMaxCpuCoolerHeight = null;
 let selectedCaseSupportedFormFactor=null;
 // Function to add the selected case to the build
-function addCaseToBuild(manufacturer, name, volume, motherboardSupport, supportedPsuFormFactors, maxPsuLength, max_gpu_length, max_cpu_height) {
+function addCaseToBuild(manufacturer, name, volume, motherboardSupport, supportedPsuFormFactors, maxPsuLength, max_gpu_length, max_cpu_height, price, link) {
   const caseRow = document.getElementById('caseRow'); // Target the correct case row
 
   if (!caseRow) {
@@ -1269,8 +1285,8 @@ function addCaseToBuild(manufacturer, name, volume, motherboardSupport, supporte
   caseRow.innerHTML = `
     <td>Case</td>
     <td>${manufacturer} ${name} (${volume ? volume + ' L' : 'N/A'})</td>
-    <td>RP 0</td>
-    <td><a href="#">Link</a></td>
+    <td>Rp ${price}</td> <!-- Add price -->
+    <td><a href="${link}" target="_blank">Link</a></td> <!-- Add link -->
     <td><button onclick="removeCase()">X</button></td>
   `;
   console.log("Max CPU Cooler Height for selected case:", max_cpu_height);

@@ -157,9 +157,11 @@ table {
 }
 
 th, td {
-    padding: 12px;
-    border-bottom: 1px solid #CCCCCC;
+    padding: 8px 12px;
     text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 th {
@@ -183,7 +185,15 @@ a {
     color: #007FFF;
     text-decoration: none;
 }
-
+td a {
+    color: #007FFF;
+    text-decoration: none;
+    display: inline-block;
+    max-width: 140px; /* Ensure links fit within the column width */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis for overflowed links */
+    white-space: nowrap; /* Prevent links from wrapping */
+}
 a:hover {
     text-decoration: underline;
 }
@@ -197,8 +207,8 @@ a:hover {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 70%; /* Modal width */
-    max-height: 80vh; /* Modal height is limited */
+    width: 90%; /* Modal width */
+    max-height: 190vh; /* Modal height is limited */
     background-color: #fff;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
     border-radius: 10px;
@@ -210,12 +220,20 @@ a:hover {
 }
 
 .modal-body {
-    max-height: 50vh; /* Limit the height of the modal body */
+    max-height: 70vh; /* Limit the height of the modal body */
     overflow-y: scroll; /* Add scroll if content exceeds the modal height */
 }
 
 /* Styling the search bar */
-#gpuSearch {
+#gpuSearch,
+#cpuSearch,
+#ramSearch,
+#cpucoolerSearch,
+#storage1Search,
+#storage2Search,
+#motherboardSearch, 
+#psuSearch,
+#caseSearch {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
